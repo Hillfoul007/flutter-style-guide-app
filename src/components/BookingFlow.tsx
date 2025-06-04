@@ -2,11 +2,32 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import DateTimePicker from './DateTimePicker';
 
 const BookingFlow = ({ provider }) => {
-  const [selectedDate, setSelectedDate] = useState('October 15, 2023');
-  const [selectedTime, setSelectedTime] = useState('10:00 AM');
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedTime, setSelectedTime] = useState('');
   const [additionalDetails, setAdditionalDetails] = useState('');
+
+  const handleConfirmAndPay = () => {
+    if (!selectedDate) {
+      alert('Please select a date');
+      return;
+    }
+    if (!selectedTime) {
+      alert('Please select a time');
+      return;
+    }
+
+    console.log('Booking confirmed:', {
+      provider: provider.name,
+      date: selectedDate,
+      time: selectedTime,
+      details: additionalDetails
+    });
+
+    alert('Booking confirmed! You will receive a confirmation email shortly.');
+  };
 
   return (
     <div className="p-6">
@@ -28,19 +49,12 @@ const BookingFlow = ({ provider }) => {
           <p className="text-gray-700">123 Main St</p>
         </div>
 
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Date</h3>
-          <div className="p-4 bg-gray-50 rounded-lg border">
-            <p className="text-gray-900">{selectedDate}</p>
-          </div>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Time</h3>
-          <div className="p-4 bg-gray-50 rounded-lg border">
-            <p className="text-gray-900">{selectedTime}</p>
-          </div>
-        </div>
+        <DateTimePicker
+          selectedDate={selectedDate}
+          selectedTime={selectedTime}
+          onDateChange={setSelectedDate}
+          onTimeChange={setSelectedTime}
+        />
 
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Additional Details</h3>
@@ -53,7 +67,10 @@ const BookingFlow = ({ provider }) => {
         </div>
       </div>
 
-      <Button className="w-full mt-8 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 rounded-xl">
+      <Button 
+        className="w-full mt-8 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 rounded-xl"
+        onClick={handleConfirmAndPay}
+      >
         Confirm and Pay
       </Button>
     </div>

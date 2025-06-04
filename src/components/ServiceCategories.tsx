@@ -2,13 +2,17 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MapPin, Menu, ShoppingCart, ChevronDown, ChevronUp } from 'lucide-react';
+import { MapPin, Menu, ShoppingCart, ChevronDown, ChevronUp, X } from 'lucide-react';
+import DateTimePicker from './DateTimePicker';
 
 const ServiceCategories = ({ onServiceSelect }) => {
   const [location, setLocation] = useState('');
   const [isLocationAuto, setIsLocationAuto] = useState(false);
   const [isServicesMenuOpen, setIsServicesMenuOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedTime, setSelectedTime] = useState('');
+  const [showCart, setShowCart] = useState(false);
 
   const services = [
     {
@@ -57,8 +61,8 @@ const ServiceCategories = ({ onServiceSelect }) => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // Simulate getting location name from coordinates
           setLocation('Current Location - Downtown Area');
+          setIsLocationAuto(false);
         },
         (error) => {
           console.log('Location access denied');
@@ -70,15 +74,57 @@ const ServiceCategories = ({ onServiceSelect }) => {
   };
 
   const addToCart = (service) => {
-    setCartItems([...cartItems, { ...service, id: Date.now() }]);
+    const newItem = { 
+      ...service, 
+      id: `${service.id}-${Date.now()}`,
+      addedAt: new Date().toISOString()
+    };
+    setCartItems([...cartItems, newItem]);
+  };
+
+  const removeFromCart = (itemId) => {
+    setCartItems(cartItems.filter(item => item.id !== itemId));
   };
 
   const handleServiceClick = (serviceId) => {
     if (serviceId === 'laundry') {
       setIsServicesMenuOpen(!isServicesMenuOpen);
     } else {
+      const service = services.find(s => s.id === serviceId);
+      if (service) {
+        addToCart(service);
+      }
       onServiceSelect(serviceId);
     }
+  };
+
+  const handleFindPros = () => {
+    if (cartItems.length === 0) {
+      alert('Please add at least one service to your cart');
+      return;
+    }
+    if (!selectedDate) {
+      alert('Please select a date');
+      return;
+    }
+    if (!selectedTime) {
+      alert('Please select a time');
+      return;
+    }
+    if (!location.trim()) {
+      alert('Please enter your location');
+      return;
+    }
+
+    console.log('Finding pros with:', {
+      services: cartItems,
+      date: selectedDate,
+      time: selectedTime,
+      location: location
+    });
+
+    // Navigate to the first service in cart
+    onServiceSelect(cartItems[0].id);
   };
 
   return (
@@ -141,8 +187,8 @@ const ServiceCategories = ({ onServiceSelect }) => {
                 <button
                   key={service.id}
                   onClick={() => {
-                    onServiceSelect(service.id);
                     addToCart(service);
+                    onServiceSelect(service.id);
                   }}
                   className="w-full text-left p-3 bg-white rounded-lg border border-gray-200 hover:border-amber-300 hover:bg-amber-50 transition-colors"
                 >
@@ -185,25 +231,48 @@ const ServiceCategories = ({ onServiceSelect }) => {
             variant="outline"
             size="sm"
             className="border-amber-300 text-amber-700 hover:bg-amber-50"
+            onClick={() => setShowCart(!showCart)}
           >
-            View Cart
+            {showCart ? 'Hide Cart' : 'View Cart'}
           </Button>
         </div>
+
+        {/* Cart Items */}
+        {showCart && cartItems.length > 0 && (
+          <div className="mt-3 bg-white rounded-lg border border-gray-200 max-h-48 overflow-y-auto">
+            {cartItems.map((item) => (
+              <div key={item.id} className="flex items-center justify-between p-3 border-b border-gray-100 last:border-b-0">
+                <span className="text-gray-800 text-sm">{item.name}</span>
+                <button
+                  onClick={() => removeFromCart(item.id)}
+                  className="text-red-500 hover:text-red-700 p-1"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {showCart && cartItems.length === 0 && (
+          <div className="mt-3 bg-white rounded-lg border border-gray-200 p-4 text-center text-gray-500">
+            Your cart is empty
+          </div>
+        )}
       </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
-          <div className="w-6 h-6 text-gray-400">📅</div>
-          <span className="text-gray-700">Date</span>
-        </div>
+      {/* Date and Time Selection */}
+      <DateTimePicker
+        selectedDate={selectedDate}
+        selectedTime={selectedTime}
+        onDateChange={setSelectedDate}
+        onTimeChange={setSelectedTime}
+      />
 
-        <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
-          <div className="w-6 h-6 text-gray-400">🕐</div>
-          <span className="text-gray-700">Time</span>
-        </div>
-      </div>
-
-      <Button className="w-full mt-8 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 rounded-xl">
+      <Button 
+        className="w-full mt-8 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 rounded-xl"
+        onClick={handleFindPros}
+      >
         Find Pros
       </Button>
     </div>
