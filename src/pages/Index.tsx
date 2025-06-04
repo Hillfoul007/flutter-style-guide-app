@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import ServiceCategories from '../components/ServiceCategories';
 import ProviderList from '../components/ProviderList';
 import BookingFlow from '../components/BookingFlow';
+import BookingHistory from '../components/BookingHistory';
 import Reviews from '../components/Reviews';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, History } from 'lucide-react';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState('categories');
@@ -18,6 +19,8 @@ const Index = () => {
       setCurrentView('categories');
     } else if (currentView === 'reviews') {
       setCurrentView('providers');
+    } else if (currentView === 'history') {
+      setCurrentView('categories');
     }
   };
 
@@ -41,10 +44,24 @@ const Index = () => {
       categories: '',
       providers: 'Search Results',
       booking: 'Schedule Task',
-      reviews: 'Reviews'
+      reviews: 'Reviews',
+      history: 'Booking History'
     };
 
-    if (currentView === 'categories') return null;
+    if (currentView === 'categories') {
+      return (
+        <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
+          <div className="w-8 h-8"></div>
+          <h1 className="text-lg font-semibold text-gray-900">TaskApp</h1>
+          <button 
+            onClick={() => setCurrentView('history')}
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <History className="w-5 h-5" />
+          </button>
+        </div>
+      );
+    }
 
     return (
       <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
@@ -83,6 +100,10 @@ const Index = () => {
         
         {currentView === 'reviews' && selectedProvider && (
           <Reviews provider={selectedProvider} />
+        )}
+
+        {currentView === 'history' && (
+          <BookingHistory />
         )}
       </div>
     </div>

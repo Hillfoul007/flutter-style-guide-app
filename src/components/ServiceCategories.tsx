@@ -3,15 +3,12 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MapPin, Menu, ShoppingCart, ChevronDown, ChevronUp, X } from 'lucide-react';
-import DateTimePicker from './DateTimePicker';
 
 const ServiceCategories = ({ onServiceSelect }) => {
   const [location, setLocation] = useState('');
   const [isLocationAuto, setIsLocationAuto] = useState(false);
   const [isServicesMenuOpen, setIsServicesMenuOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
-  const [selectedDate, setSelectedDate] = useState<Date>();
-  const [selectedTime, setSelectedTime] = useState('');
   const [showCart, setShowCart] = useState(false);
 
   const services = [
@@ -94,37 +91,12 @@ const ServiceCategories = ({ onServiceSelect }) => {
       if (service) {
         addToCart(service);
       }
-      onServiceSelect(serviceId);
     }
   };
 
-  const handleFindPros = () => {
-    if (cartItems.length === 0) {
-      alert('Please add at least one service to your cart');
-      return;
-    }
-    if (!selectedDate) {
-      alert('Please select a date');
-      return;
-    }
-    if (!selectedTime) {
-      alert('Please select a time');
-      return;
-    }
-    if (!location.trim()) {
-      alert('Please enter your location');
-      return;
-    }
-
-    console.log('Finding pros with:', {
-      services: cartItems,
-      date: selectedDate,
-      time: selectedTime,
-      location: location
-    });
-
-    // Navigate to the first service in cart
-    onServiceSelect(cartItems[0].id);
+  const handleBookService = (service) => {
+    // Pass the service to the booking flow
+    onServiceSelect(service.id);
   };
 
   return (
@@ -184,16 +156,26 @@ const ServiceCategories = ({ onServiceSelect }) => {
             <h4 className="font-semibold text-gray-900 mb-3">Laundry Services</h4>
             <div className="space-y-2">
               {laundryServices.map((service) => (
-                <button
-                  key={service.id}
-                  onClick={() => {
-                    addToCart(service);
-                    onServiceSelect(service.id);
-                  }}
-                  className="w-full text-left p-3 bg-white rounded-lg border border-gray-200 hover:border-amber-300 hover:bg-amber-50 transition-colors"
-                >
+                <div key={service.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
                   <span className="text-gray-800">{service.name}</span>
-                </button>
+                  <div className="flex space-x-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => addToCart(service)}
+                      className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                    >
+                      Add to Cart
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => handleBookService(service)}
+                      className="bg-amber-500 hover:bg-amber-600 text-white"
+                    >
+                      Book Now
+                    </Button>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -203,15 +185,31 @@ const ServiceCategories = ({ onServiceSelect }) => {
       {/* Service Categories Grid */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         {services.map((service) => (
-          <button
+          <div
             key={service.id}
-            onClick={() => handleServiceClick(service.id)}
-            className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95"
+            className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm"
           >
             <div className="text-3xl mb-3">{service.icon}</div>
             <h3 className="font-semibold text-gray-900 mb-1">{service.name}</h3>
-            <p className="text-sm text-gray-600">{service.description}</p>
-          </button>
+            <p className="text-sm text-gray-600 mb-4">{service.description}</p>
+            <div className="flex space-x-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleServiceClick(service.id)}
+                className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-50"
+              >
+                Add to Cart
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => handleBookService(service)}
+                className="flex-1 bg-amber-500 hover:bg-amber-600 text-white"
+              >
+                Book Now
+              </Button>
+            </div>
+          </div>
         ))}
       </div>
 
@@ -243,12 +241,21 @@ const ServiceCategories = ({ onServiceSelect }) => {
             {cartItems.map((item) => (
               <div key={item.id} className="flex items-center justify-between p-3 border-b border-gray-100 last:border-b-0">
                 <span className="text-gray-800 text-sm">{item.name}</span>
-                <button
-                  onClick={() => removeFromCart(item.id)}
-                  className="text-red-500 hover:text-red-700 p-1"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    size="sm"
+                    onClick={() => handleBookService(item)}
+                    className="bg-amber-500 hover:bg-amber-600 text-white text-xs px-2 py-1"
+                  >
+                    Book
+                  </Button>
+                  <button
+                    onClick={() => removeFromCart(item.id)}
+                    className="text-red-500 hover:text-red-700 p-1"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -261,20 +268,18 @@ const ServiceCategories = ({ onServiceSelect }) => {
         )}
       </div>
 
-      {/* Date and Time Selection */}
-      <DateTimePicker
-        selectedDate={selectedDate}
-        selectedTime={selectedTime}
-        onDateChange={setSelectedDate}
-        onTimeChange={setSelectedTime}
-      />
-
-      <Button 
-        className="w-full mt-8 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 rounded-xl"
-        onClick={handleFindPros}
-      >
-        Find Pros
-      </Button>
+      {cartItems.length > 0 && (
+        <Button 
+          className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 rounded-xl"
+          onClick={() => {
+            if (cartItems.length > 0) {
+              handleBookService(cartItems[0]);
+            }
+          }}
+        >
+          Book Selected Services
+        </Button>
+      )}
     </div>
   );
 };
