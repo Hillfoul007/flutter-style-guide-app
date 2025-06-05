@@ -50,38 +50,38 @@ const Index = () => {
 
     if (currentView === 'categories') {
       return (
-        <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500 to-indigo-600 border-b border-blue-200 shadow-lg">
           <div className="w-8 h-8"></div>
-          <h1 className="text-lg font-semibold text-gray-900">TaskApp</h1>
+          <h1 className="text-xl font-bold text-white">TaskApp</h1>
           <button 
             onClick={() => setCurrentView('history')}
-            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
           >
-            <History className="w-5 h-5" />
+            <History className="w-5 h-5 text-white" />
           </button>
         </div>
       );
     }
 
     return (
-      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
+      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500 to-indigo-600 border-b border-blue-200 shadow-lg">
         <button 
           onClick={navigateBack}
-          className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors"
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-5 h-5 text-white" />
         </button>
-        <h1 className="text-lg font-semibold text-gray-900">{titles[currentView]}</h1>
-        <div className="w-8 h-8"></div>
+        <h1 className="text-xl font-bold text-white">{titles[currentView]}</h1>
+        <div className="w-10 h-10"></div>
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {renderHeader()}
       
-      <div className="max-w-md mx-auto bg-white min-h-screen shadow-lg">
+      <div className="max-w-md mx-auto bg-transparent min-h-screen">
         {currentView === 'categories' && (
           <ServiceCategories onServiceSelect={handleServiceSelect} />
         )}
