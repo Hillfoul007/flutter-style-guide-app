@@ -15,11 +15,20 @@ const BookingFlow = ({ provider }) => {
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [signupForm, setSignupForm] = useState({ email: '', password: '', name: '' });
   const [isSignup, setIsSignup] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    nameOnCard: ''
+  });
 
   const handleLogin = (e) => {
     e.preventDefault();
     console.log('Login attempt:', loginForm);
     setIsLoggedIn(true);
+    setUserEmail(loginForm.email);
     setShowLogin(false);
     alert('Login successful!');
   };
@@ -28,11 +37,12 @@ const BookingFlow = ({ provider }) => {
     e.preventDefault();
     console.log('Signup attempt:', signupForm);
     setIsLoggedIn(true);
+    setUserEmail(signupForm.email);
     setShowLogin(false);
     alert('Account created successfully!');
   };
 
-  const handleConfirmAndPay = () => {
+  const handleProceedToPayment = () => {
     if (!isLoggedIn) {
       setShowLogin(true);
       return;
@@ -47,15 +57,129 @@ const BookingFlow = ({ provider }) => {
       return;
     }
 
-    console.log('Booking confirmed:', {
-      provider: provider.name,
-      date: selectedDate,
-      time: selectedTime,
-      details: additionalDetails
-    });
-
-    alert('Booking confirmed! You will receive a confirmation email shortly.');
+    setShowPayment(true);
   };
+
+  const handlePayment = (e) => {
+    e.preventDefault();
+    console.log('Payment attempt:', paymentForm);
+    
+    // Save booking to localStorage (simulating booking history)
+    const booking = {
+      id: Date.now(),
+      service: provider.name,
+      provider: provider.name,
+      date: selectedDate.toISOString().split('T')[0],
+      time: selectedTime,
+      location: '123 Main St',
+      status: 'Confirmed',
+      price: provider.price || 80,
+      userEmail: userEmail,
+      details: additionalDetails,
+      bookedAt: new Date().toISOString()
+    };
+
+    const existingBookings = JSON.parse(localStorage.getItem('bookingHistory') || '[]');
+    existingBookings.push(booking);
+    localStorage.setItem('bookingHistory', JSON.stringify(existingBookings));
+
+    console.log('Booking confirmed:', booking);
+    alert('Payment successful! Your booking has been confirmed.');
+    setShowPayment(false);
+  };
+
+  if (showPayment) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
+        <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-blue-100 p-8">
+          <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            💳 Payment Gateway
+          </h2>
+          
+          <div className="mb-6 p-4 bg-blue-50 rounded-xl">
+            <h3 className="font-semibold text-gray-900 mb-2">Booking Summary</h3>
+            <p className="text-sm text-gray-600">Service: {provider.name}</p>
+            <p className="text-sm text-gray-600">Date: {selectedDate?.toLocaleDateString()}</p>
+            <p className="text-sm text-gray-600">Time: {selectedTime}</p>
+            <p className="text-lg font-bold text-blue-600 mt-2">Total: ${provider.price || 80}</p>
+          </div>
+
+          <form onSubmit={handlePayment} className="space-y-6">
+            <div>
+              <Label htmlFor="nameOnCard" className="text-gray-700 font-medium">Name on Card</Label>
+              <Input
+                id="nameOnCard"
+                type="text"
+                value={paymentForm.nameOnCard}
+                onChange={(e) => setPaymentForm({...paymentForm, nameOnCard: e.target.value})}
+                required
+                className="mt-2 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                placeholder="John Doe"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="cardNumber" className="text-gray-700 font-medium">Card Number</Label>
+              <Input
+                id="cardNumber"
+                type="text"
+                value={paymentForm.cardNumber}
+                onChange={(e) => setPaymentForm({...paymentForm, cardNumber: e.target.value})}
+                required
+                className="mt-2 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                placeholder="1234 5678 9012 3456"
+                maxLength={19}
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="expiryDate" className="text-gray-700 font-medium">Expiry Date</Label>
+                <Input
+                  id="expiryDate"
+                  type="text"
+                  value={paymentForm.expiryDate}
+                  onChange={(e) => setPaymentForm({...paymentForm, expiryDate: e.target.value})}
+                  required
+                  className="mt-2 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="MM/YY"
+                  maxLength={5}
+                />
+              </div>
+              <div>
+                <Label htmlFor="cvv" className="text-gray-700 font-medium">CVV</Label>
+                <Input
+                  id="cvv"
+                  type="text"
+                  value={paymentForm.cvv}
+                  onChange={(e) => setPaymentForm({...paymentForm, cvv: e.target.value})}
+                  required
+                  className="mt-2 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="123"
+                  maxLength={4}
+                />
+              </div>
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 rounded-xl"
+            >
+              💳 Pay ${provider.price || 80}
+            </Button>
+          </form>
+          
+          <Button
+            variant="outline"
+            onClick={() => setShowPayment(false)}
+            className="w-full mt-4 border-blue-300 text-blue-700 hover:bg-blue-50 rounded-xl"
+          >
+            Back to Booking Details
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (showLogin) {
     return (
@@ -96,7 +220,7 @@ const BookingFlow = ({ provider }) => {
                 }}
                 required
                 className="mt-2 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Enter your email"
+                placeholder="Enter your email address"
               />
             </div>
             
@@ -163,11 +287,16 @@ const BookingFlow = ({ provider }) => {
           </div>
           {isLoggedIn && (
             <div className="ml-auto">
+              <div className="text-sm text-gray-600">Logged in as:</div>
+              <div className="font-medium text-blue-600">{userEmail}</div>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setIsLoggedIn(false)}
-                className="text-gray-600 border-gray-300 hover:bg-gray-50 rounded-lg"
+                onClick={() => {
+                  setIsLoggedIn(false);
+                  setUserEmail('');
+                }}
+                className="mt-1 text-gray-600 border-gray-300 hover:bg-gray-50 rounded-lg"
               >
                 Logout
               </Button>
@@ -203,9 +332,9 @@ const BookingFlow = ({ provider }) => {
 
         <Button 
           className="w-full mt-8 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-4 rounded-xl shadow-lg text-lg"
-          onClick={handleConfirmAndPay}
+          onClick={handleProceedToPayment}
         >
-          {isLoggedIn ? '💳 Confirm and Pay' : '🔐 Login to Continue'}
+          {isLoggedIn ? '💳 Proceed to Payment' : '🔐 Login to Continue'}
         </Button>
       </div>
     </div>

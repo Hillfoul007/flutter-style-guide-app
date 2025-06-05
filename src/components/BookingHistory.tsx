@@ -1,46 +1,20 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MapPin, User } from 'lucide-react';
+import { Calendar, Clock, MapPin, User, Trash2 } from 'lucide-react';
 
 const BookingHistory = () => {
-  // Mock booking data
-  const bookings = [
-    {
-      id: 1,
-      service: 'House Cleaning',
-      provider: 'Sarah Johnson',
-      date: '2024-06-15',
-      time: '10:00 AM',
-      location: '123 Main St',
-      status: 'Completed',
-      price: 80
-    },
-    {
-      id: 2,
-      service: 'Furniture Assembly',
-      provider: 'Mike Wilson',
-      date: '2024-06-20',
-      time: '2:00 PM',
-      location: '123 Main St',
-      status: 'Upcoming',
-      price: 120
-    },
-    {
-      id: 3,
-      service: 'Laundry & Fold Service',
-      provider: 'Lisa Chen',
-      date: '2024-06-10',
-      time: '9:00 AM',
-      location: '123 Main St',
-      status: 'Completed',
-      price: 45
-    }
-  ];
+  const [bookings, setBookings] = useState([]);
+
+  useEffect(() => {
+    // Load bookings from localStorage
+    const savedBookings = JSON.parse(localStorage.getItem('bookingHistory') || '[]');
+    setBookings(savedBookings);
+  }, []);
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Completed':
+      case 'Confirmed':
         return 'bg-green-100 text-green-800 border-green-200';
       case 'Upcoming':
         return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -48,6 +22,19 @@ const BookingHistory = () => {
         return 'bg-red-100 text-red-800 border-red-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const deleteBooking = (bookingId) => {
+    const updatedBookings = bookings.filter(booking => booking.id !== bookingId);
+    setBookings(updatedBookings);
+    localStorage.setItem('bookingHistory', JSON.stringify(updatedBookings));
+  };
+
+  const clearAllBookings = () => {
+    if (confirm('Are you sure you want to clear all booking history?')) {
+      setBookings([]);
+      localStorage.removeItem('bookingHistory');
     }
   };
 
@@ -59,6 +46,17 @@ const BookingHistory = () => {
             Booking History
           </h1>
           <p className="text-gray-600">Your past and upcoming bookings</p>
+          {bookings.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearAllBookings}
+              className="mt-4 border-red-300 text-red-700 hover:bg-red-50 rounded-lg"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Clear All History
+            </Button>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -71,6 +69,11 @@ const BookingHistory = () => {
                     <User className="w-4 h-4 mr-1" />
                     <span className="text-sm">{booking.provider}</span>
                   </div>
+                  {booking.userEmail && (
+                    <div className="text-sm text-blue-600 mt-1">
+                      Booked by: {booking.userEmail}
+                    </div>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-xl text-blue-600">${booking.price}</p>
@@ -98,36 +101,32 @@ const BookingHistory = () => {
                   <MapPin className="w-4 h-4 mr-3 text-blue-600" />
                   <span>{booking.location}</span>
                 </div>
+                {booking.details && (
+                  <div className="mt-2 p-2 bg-white rounded-lg">
+                    <span className="text-gray-700 text-xs">Details: {booking.details}</span>
+                  </div>
+                )}
+                <div className="text-xs text-gray-500 mt-2">
+                  Booked on: {new Date(booking.bookedAt).toLocaleDateString()} at {new Date(booking.bookedAt).toLocaleTimeString()}
+                </div>
               </div>
 
               <div className="flex space-x-3 mt-6">
-                {booking.status === 'Upcoming' && (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg"
-                    >
-                      Reschedule
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 border-red-300 text-red-700 hover:bg-red-50 rounded-lg"
-                    >
-                      Cancel
-                    </Button>
-                  </>
-                )}
-                {booking.status === 'Completed' && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg"
-                  >
-                    Book Again
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg"
+                >
+                  Book Again
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => deleteBooking(booking.id)}
+                  className="border-red-300 text-red-700 hover:bg-red-50 rounded-lg"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           ))}
@@ -139,7 +138,7 @@ const BookingHistory = () => {
               <Calendar className="w-16 h-16 mx-auto" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No bookings yet</h3>
-            <p className="text-gray-600">Your booking history will appear here</p>
+            <p className="text-gray-600">Your booking history will appear here after you make a booking</p>
           </div>
         )}
       </div>

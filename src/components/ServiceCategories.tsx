@@ -7,7 +7,7 @@ import { MapPin, Menu, ShoppingCart, ChevronDown, ChevronUp, X } from 'lucide-re
 const ServiceCategories = ({ onServiceSelect }) => {
   const [location, setLocation] = useState('');
   const [isLocationAuto, setIsLocationAuto] = useState(false);
-  const [isServicesMenuOpen, setIsServicesMenuOpen] = useState(false);
+  const [isLaundryMenuOpen, setIsLaundryMenuOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [showCart, setShowCart] = useState(false);
 
@@ -35,22 +35,16 @@ const ServiceCategories = ({ onServiceSelect }) => {
       name: 'Moving',
       icon: '📦',
       description: 'Packing & moving help'
-    },
-    {
-      id: 'laundry',
-      name: 'Laundry Services',
-      icon: '👕',
-      description: 'Professional laundry care'
     }
   ];
 
   const laundryServices = [
-    { id: 'laundry-fold', name: 'Laundry & Fold Service' },
-    { id: 'laundry-iron', name: 'Laundry and Iron Service' },
-    { id: 'iron-only', name: 'Iron Service' },
-    { id: 'dry-cleaning-mens', name: "Dry Cleaning Mens' Wear" },
-    { id: 'dry-cleaning-womens', name: "Dry Cleaning Women's Wear" },
-    { id: 'other-dry-cleaning', name: 'Other Dry Cleaning' }
+    { id: 'laundry-fold', name: 'Laundry & Fold Service', price: 25 },
+    { id: 'laundry-iron', name: 'Laundry and Iron Service', price: 35 },
+    { id: 'iron-only', name: 'Iron Service', price: 15 },
+    { id: 'dry-cleaning-mens', name: "Dry Cleaning Mens' Wear", price: 45 },
+    { id: 'dry-cleaning-womens', name: "Dry Cleaning Women's Wear", price: 50 },
+    { id: 'other-dry-cleaning', name: 'Other Dry Cleaning', price: 40 }
   ];
 
   const handleAutoLocation = () => {
@@ -83,15 +77,8 @@ const ServiceCategories = ({ onServiceSelect }) => {
     setCartItems(cartItems.filter(item => item.id !== itemId));
   };
 
-  const handleServiceClick = (serviceId) => {
-    if (serviceId === 'laundry') {
-      setIsServicesMenuOpen(!isServicesMenuOpen);
-    } else {
-      const service = services.find(s => s.id === serviceId);
-      if (service) {
-        addToCart(service);
-      }
-    }
+  const handleServiceClick = (service) => {
+    addToCart(service);
   };
 
   const handleBookService = (service) => {
@@ -134,18 +121,18 @@ const ServiceCategories = ({ onServiceSelect }) => {
           </div>
         </div>
 
-        {/* Services Menu Button */}
+        {/* Laundry Service Menu Button */}
         <div className="mb-6">
           <Button
-            onClick={() => setIsServicesMenuOpen(!isServicesMenuOpen)}
+            onClick={() => setIsLaundryMenuOpen(!isLaundryMenuOpen)}
             variant="outline"
             className="w-full flex items-center justify-between p-6 border-2 border-blue-200 hover:border-blue-300 rounded-2xl bg-white shadow-lg"
           >
             <div className="flex items-center">
               <Menu className="w-5 h-5 mr-3 text-blue-600" />
-              <span className="font-semibold text-gray-900">Services Menu</span>
+              <span className="font-semibold text-gray-900">👕 Laundry Service Menu</span>
             </div>
-            {isServicesMenuOpen ? (
+            {isLaundryMenuOpen ? (
               <ChevronUp className="w-5 h-5 text-blue-600" />
             ) : (
               <ChevronDown className="w-5 h-5 text-blue-600" />
@@ -153,13 +140,16 @@ const ServiceCategories = ({ onServiceSelect }) => {
           </Button>
 
           {/* Expandable Laundry Services */}
-          {isServicesMenuOpen && (
+          {isLaundryMenuOpen && (
             <div className="mt-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200 shadow-inner">
               <h4 className="font-semibold text-gray-900 mb-4 text-lg">👕 Laundry Services</h4>
               <div className="space-y-3">
                 {laundryServices.map((service) => (
                   <div key={service.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-                    <span className="text-gray-800 font-medium">{service.name}</span>
+                    <div className="flex-1">
+                      <span className="text-gray-800 font-medium">{service.name}</span>
+                      <p className="text-blue-600 font-semibold">${service.price}</p>
+                    </div>
                     <div className="flex space-x-2">
                       <Button
                         size="sm"
@@ -198,7 +188,7 @@ const ServiceCategories = ({ onServiceSelect }) => {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleServiceClick(service.id)}
+                  onClick={() => handleServiceClick(service)}
                   className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg"
                 >
                   Add to Cart
@@ -242,7 +232,12 @@ const ServiceCategories = ({ onServiceSelect }) => {
             <div className="border-t border-blue-100 bg-blue-50 max-h-48 overflow-y-auto">
               {cartItems.map((item) => (
                 <div key={item.id} className="flex items-center justify-between p-4 border-b border-blue-100 last:border-b-0">
-                  <span className="text-gray-800 text-sm font-medium">{item.name}</span>
+                  <div className="flex-1">
+                    <span className="text-gray-800 text-sm font-medium">{item.name}</span>
+                    {item.price && (
+                      <p className="text-blue-600 font-semibold text-sm">${item.price}</p>
+                    )}
+                  </div>
                   <div className="flex items-center space-x-2">
                     <Button
                       size="sm"
