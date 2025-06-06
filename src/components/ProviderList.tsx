@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import StarRating from './StarRating';
 
 const ProviderList = ({ service, onProviderSelect, onViewReviews }) => {
-  const providers = [
+  const [providers, setProviders] = useState([
     {
       id: 1,
       name: 'Jenny Wilson',
@@ -32,7 +32,37 @@ const ProviderList = ({ service, onProviderSelect, onViewReviews }) => {
       image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
       specialty: 'Cleaning'
     }
-  ];
+  ]);
+
+  useEffect(() => {
+    // Load registered service providers from localStorage
+    const registeredProviders = JSON.parse(localStorage.getItem('serviceProviders') || '[]');
+    
+    // Check if there are any registered providers to display
+    if (registeredProviders.length > 0) {
+      // Filter providers by specialty/service if needed
+      // For now, we'll just combine them with default providers
+      const allProviders = [...providers];
+      
+      // Avoid duplicates by checking existing IDs
+      const existingIds = new Set(allProviders.map(p => p.id));
+      
+      registeredProviders.forEach(provider => {
+        if (!existingIds.has(provider.id)) {
+          allProviders.push({
+            ...provider,
+            // Ensure required fields have default values
+            rating: provider.rating || 0,
+            reviews: provider.reviews || 0,
+            specialty: provider.specialty || service
+          });
+          existingIds.add(provider.id);
+        }
+      });
+      
+      setProviders(allProviders);
+    }
+  }, [service]);
 
   return (
     <div className="p-4">

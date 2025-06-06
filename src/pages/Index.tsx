@@ -5,7 +5,8 @@ import ProviderList from '../components/ProviderList';
 import BookingFlow from '../components/BookingFlow';
 import BookingHistory from '../components/BookingHistory';
 import Reviews from '../components/Reviews';
-import { ArrowLeft, History } from 'lucide-react';
+import ProviderRegistration from '../components/ProviderRegistration';
+import { ArrowLeft, History, UserCog } from 'lucide-react';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState('categories');
@@ -20,6 +21,8 @@ const Index = () => {
     } else if (currentView === 'reviews') {
       setCurrentView('providers');
     } else if (currentView === 'history') {
+      setCurrentView('categories');
+    } else if (currentView === 'providerRegistration') {
       setCurrentView('categories');
     }
   };
@@ -45,13 +48,19 @@ const Index = () => {
       providers: 'Search Results',
       booking: 'Schedule Task',
       reviews: 'Reviews',
-      history: 'Booking History'
+      history: 'Booking History',
+      providerRegistration: 'Service Provider Portal'
     };
 
     if (currentView === 'categories') {
       return (
         <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500 to-indigo-600 border-b border-blue-200 shadow-lg">
-          <div className="w-8 h-8"></div>
+          <button 
+            onClick={() => setCurrentView('providerRegistration')}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
+          >
+            <UserCog className="w-5 h-5 text-white" />
+          </button>
           <h1 className="text-xl font-bold text-white">TaskApp</h1>
           <button 
             onClick={() => setCurrentView('history')}
@@ -104,6 +113,10 @@ const Index = () => {
 
         {currentView === 'history' && (
           <BookingHistory />
+        )}
+
+        {currentView === 'providerRegistration' && (
+          <ProviderRegistration />
         )}
       </div>
     </div>
