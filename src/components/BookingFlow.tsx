@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import DateTimePicker from "./DateTimePicker";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/hooks/useBookings";
+import { logDetailedError, getDisplayError } from "@/utils/errorHandler";
 import Auth from "./Auth";
 
 const BookingFlow = ({ provider }) => {
@@ -67,17 +68,21 @@ const BookingFlow = ({ provider }) => {
       const { data, error } = await createBooking(bookingData);
 
       if (error) {
-        console.error("Booking creation error:", error);
-        alert("Error creating booking: " + (error.message || error.toString()));
+        logDetailedError("Booking Creation", error);
+        const errorMessage = getDisplayError(error);
+        alert("Error creating booking: " + errorMessage);
         return;
       }
 
       console.log("Booking created successfully:", data);
       alert("Payment successful! Your booking has been confirmed.");
       setShowPayment(false);
-    } catch (error) {
-      console.error("Booking error:", error);
-      alert("Error processing booking. Please try again.");
+    } catch (error: any) {
+      logDetailedError("Booking Payment Process", error);
+      const errorMessage = getDisplayError(error);
+      alert(
+        "Error processing booking: " + errorMessage + ". Please try again.",
+      );
     }
   };
 

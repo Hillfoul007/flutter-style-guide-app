@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { handleAuthError } from "@/utils/authErrorHandler";
+import {
+  logDetailedError,
+  getDisplayError,
+  isAuthError,
+} from "@/utils/errorHandler";
 
 interface Booking {
   id: string;
@@ -74,23 +79,31 @@ export const useBookings = () => {
         .single();
 
       if (error) {
-        console.error("Supabase insert error:", error);
+        const detailedError = logDetailedError(
+          "Supabase Booking Insert",
+          error,
+        );
         throw error;
       }
 
       console.log("Booking inserted successfully:", data);
       setBookings((prev) => [data, ...prev]);
       return { data, error: null };
-    } catch (error) {
-      console.error("Error creating booking:", error);
+    } catch (error: any) {
+      const detailedError = logDetailedError("Create Booking", error);
+
       // Check if it's an auth error
-      if (
-        error?.message?.includes("refresh") ||
-        error?.message?.includes("token")
-      ) {
+      if (isAuthError(error)) {
         await handleAuthError(error);
       }
-      return { data: null, error };
+
+      return {
+        data: null,
+        error: {
+          message: getDisplayError(error),
+          originalError: error,
+        },
+      };
     }
   };
 
