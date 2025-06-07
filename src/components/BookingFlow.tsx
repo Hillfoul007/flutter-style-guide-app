@@ -4,10 +4,6 @@ import { Textarea } from "@/components/ui/textarea";
 import DateTimePicker from "./DateTimePicker";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/hooks/useBookings";
-import {
-  testDatabaseConnection,
-  testBookingInsertion,
-} from "@/utils/testDatabase";
 import Auth from "./Auth";
 
 const BookingFlow = ({ provider }) => {
@@ -42,26 +38,6 @@ const BookingFlow = ({ provider }) => {
     }
 
     setShowPayment(true);
-  };
-
-  const handleTestDatabase = async () => {
-    console.log("Testing database connection...");
-    const result = await testDatabaseConnection();
-    if (result.success) {
-      alert("Database connection successful! Check console for details.");
-    } else {
-      alert("Database connection failed! Check console for error details.");
-    }
-  };
-
-  const handleTestBookingInsertion = async () => {
-    console.log("Testing booking insertion...");
-    const result = await testBookingInsertion();
-    if (result.success) {
-      alert("Test booking insertion successful! Check console for details.");
-    } else {
-      alert("Test booking insertion failed! Check console for error details.");
-    }
   };
 
   const handlePayment = async (e) => {
@@ -300,26 +276,6 @@ const BookingFlow = ({ provider }) => {
         >
           {user ? "💳 Proceed to Payment" : "🔐 Login to Continue"}
         </Button>
-
-        {/* Debug buttons - remove these in production */}
-        {user && (
-          <div className="mt-4 space-y-2">
-            <Button
-              variant="outline"
-              onClick={handleTestDatabase}
-              className="w-full border-orange-300 text-orange-700 hover:bg-orange-50 rounded-xl"
-            >
-              🔧 Test Database Connection
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleTestBookingInsertion}
-              className="w-full border-purple-300 text-purple-700 hover:bg-purple-50 rounded-xl"
-            >
-              🧪 Test Booking Insertion
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
