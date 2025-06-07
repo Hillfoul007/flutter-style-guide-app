@@ -140,7 +140,7 @@ const ProAuth: React.FC<ProAuthProps> = ({ onBack, mode: initialMode }) => {
     return () => {
       if (timeout) clearTimeout(timeout);
     };
-  }, [registerForm.email, mode, emailCheckTimeout]);
+  }, [registerForm.email, mode]); // Removed emailCheckTimeout from dependencies
 
   // Phone validation with debounce
   useEffect(() => {
@@ -181,7 +181,7 @@ const ProAuth: React.FC<ProAuthProps> = ({ onBack, mode: initialMode }) => {
     return () => {
       if (timeout) clearTimeout(timeout);
     };
-  }, [registerForm.phone, mode, phoneCheckTimeout]);
+  }, [registerForm.phone, mode]); // Removed phoneCheckTimeout from dependencies
 
   // Password validation for registration
   useEffect(() => {
