@@ -6,6 +6,7 @@ import BookingHistory from "../components/BookingHistory";
 import Reviews from "../components/Reviews";
 import ProviderRegistration from "../components/ProviderRegistration";
 import Auth from "../components/Auth";
+import ProAuth from "../components/ProAuth";
 import FloatingCartButton from "../components/FloatingCartButton";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { CartProvider, useCart } from "../contexts/CartContext";
@@ -43,6 +44,10 @@ const IndexContent = () => {
     } else if (currentView === "providerRegistration") {
       setCurrentView("categories");
     } else if (currentView === "auth") {
+      setCurrentView("categories");
+    } else if (currentView === "proAuth") {
+      setCurrentView("categories");
+    } else if (currentView === "proLogin") {
       setCurrentView("categories");
     }
   };
@@ -90,9 +95,22 @@ const IndexContent = () => {
     return (
       <Auth
         onBack={() => setCurrentView("categories")}
-        onJoinAsPro={() => setCurrentView("providerRegistration")}
+        onJoinAsPro={() => setCurrentView("proAuth")}
+        onLoginAsPro={() => setCurrentView("proLogin")}
       />
     );
+  }
+
+  // Show pro auth screen
+  if (currentView === "proAuth") {
+    return (
+      <ProAuth mode="register" onBack={() => setCurrentView("categories")} />
+    );
+  }
+
+  // Show pro login screen
+  if (currentView === "proLogin") {
+    return <ProAuth mode="login" onBack={() => setCurrentView("categories")} />;
   }
 
   const renderHeader = () => {
@@ -103,6 +121,8 @@ const IndexContent = () => {
       reviews: "Reviews",
       history: "My Bookings",
       providerRegistration: "Join as Pro",
+      proAuth: "Join as Pro",
+      proLogin: "Pro Login",
     };
 
     if (currentView === "categories") {

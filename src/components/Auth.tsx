@@ -23,9 +23,10 @@ import {
 interface AuthProps {
   onBack: () => void;
   onJoinAsPro?: () => void;
+  onLoginAsPro?: () => void;
 }
 
-const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro }) => {
+const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro, onLoginAsPro }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -411,20 +412,40 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro }) => {
               </button>
             </div>
 
-            {/* Join as Pro Option */}
+            {/* Pro Options */}
             <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="text-center">
-                <p className="text-gray-600 mb-3 text-sm">
-                  Want to offer services?
-                </p>
-                <Button
-                  onClick={onJoinAsPro}
-                  variant="outline"
-                  className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 rounded-xl py-3"
-                >
-                  <UserCog className="w-4 h-4 mr-2" />
-                  Join as a Pro
-                </Button>
+              <div className="text-center space-y-3">
+                <p className="text-gray-600 text-sm">Professional Services</p>
+
+                {isLogin ? (
+                  <div className="grid grid-cols-1 gap-3">
+                    <Button
+                      onClick={onLoginAsPro}
+                      variant="outline"
+                      className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 rounded-xl py-3"
+                    >
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Login as a Pro
+                    </Button>
+                    <Button
+                      onClick={onJoinAsPro}
+                      variant="outline"
+                      className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 rounded-xl py-3"
+                    >
+                      <UserCog className="w-4 h-4 mr-2" />
+                      Join as a Pro
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={onJoinAsPro}
+                    variant="outline"
+                    className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 rounded-xl py-3"
+                  >
+                    <UserCog className="w-4 h-4 mr-2" />
+                    Join as a Pro
+                  </Button>
+                )}
               </div>
             </div>
           </div>
