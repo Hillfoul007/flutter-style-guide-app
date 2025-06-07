@@ -10,6 +10,7 @@ const BookingFlow = ({ provider }) => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState("");
   const [additionalDetails, setAdditionalDetails] = useState("");
+  const [address, setAddress] = useState("");
   const [showPayment, setShowPayment] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
@@ -36,6 +37,10 @@ const BookingFlow = ({ provider }) => {
       alert("Please select a time");
       return;
     }
+    if (!address.trim()) {
+      alert("Please enter your address");
+      return;
+    }
 
     setShowPayment(true);
   };
@@ -50,7 +55,7 @@ const BookingFlow = ({ provider }) => {
         provider_name: provider.name,
         date: selectedDate.toISOString().split("T")[0],
         time: selectedTime,
-        location: "123 Main St",
+        location: address || "123 Main St",
         status: "Confirmed" as const,
         price: provider.price || 80,
         details: additionalDetails,
@@ -243,9 +248,15 @@ const BookingFlow = ({ provider }) => {
         <div className="space-y-8">
           <div className="bg-blue-50 p-6 rounded-xl">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              📍 Service Location
+              📍 Service Address
             </h3>
-            <p className="text-gray-700">123 Main St, Downtown Area</p>
+            <Textarea
+              placeholder="Enter your complete address where service is needed..."
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="min-h-[80px] resize-none border-blue-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+              required
+            />
           </div>
 
           <div className="bg-blue-50 p-6 rounded-xl">
