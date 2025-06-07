@@ -1,9 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, LogIn, UserPlus, ArrowLeft, UserCog } from "lucide-react";
+import {
+  checkEmailExists,
+  checkPhoneExists,
+  isValidEmail,
+  isValidPhoneNumber,
+  formatPhoneNumber,
+} from "@/utils/userValidation";
+import {
+  User,
+  LogIn,
+  UserPlus,
+  ArrowLeft,
+  UserCog,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
 
 interface AuthProps {
   onBack: () => void;
@@ -19,12 +34,146 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  // Validation states
+  const [emailValidation, setEmailValidation] = useState<{
+    isValid: boolean;
+    message?: string;
+    checking?: boolean;
+  }>({ isValid: true });
+  const [phoneValidation, setPhoneValidation] = useState<{
+    isValid: boolean;
+    message?: string;
+    checking?: boolean;
+  }>({ isValid: true });
+  const [emailCheckTimeout, setEmailCheckTimeout] =
+    useState<NodeJS.Timeout | null>(null);
+  const [phoneCheckTimeout, setPhoneCheckTimeout] =
+    useState<NodeJS.Timeout | null>(null);
+
   const { signIn, signUp } = useAuth();
+
+  // Email validation with debounce
+  useEffect(() => {
+    if (!email || isLogin) {
+      setEmailValidation({ isValid: true });
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setEmailValidation({
+        isValid: false,
+        message: "Please enter a valid email address",
+      });
+      return;
+    }
+
+    // Clear previous timeout
+    if (emailCheckTimeout) {
+      clearTimeout(emailCheckTimeout);
+    }
+
+    setEmailValidation({ isValid: true, checking: true });
+
+    // Set new timeout for email checking
+    const timeout = setTimeout(async () => {
+      try {
+        const result = await checkEmailExists(email);
+        setEmailValidation({
+          isValid: result.isValid,
+          message: result.message,
+          checking: false,
+        });
+      } catch (error) {
+        setEmailValidation({ isValid: true, checking: false });
+      }
+    }, 1000); // 1 second debounce
+
+    setEmailCheckTimeout(timeout);
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [email, isLogin, emailCheckTimeout]);
+
+  // Phone validation with debounce
+  useEffect(() => {
+    if (!mobile || isLogin) {
+      setPhoneValidation({ isValid: true });
+      return;
+    }
+
+    if (!isValidPhoneNumber(mobile)) {
+      setPhoneValidation({
+        isValid: false,
+        message: "Please enter a valid phone number",
+      });
+      return;
+    }
+
+    // Clear previous timeout
+    if (phoneCheckTimeout) {
+      clearTimeout(phoneCheckTimeout);
+    }
+
+    setPhoneValidation({ isValid: true, checking: true });
+
+    // Set new timeout for phone checking
+    const timeout = setTimeout(async () => {
+      try {
+        const result = await checkPhoneExists(mobile);
+        setPhoneValidation({
+          isValid: result.isValid,
+          message: result.message,
+          checking: false,
+        });
+      } catch (error) {
+        setPhoneValidation({ isValid: true, checking: false });
+      }
+    }, 1000); // 1 second debounce
+
+    setPhoneCheckTimeout(timeout);
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [mobile, isLogin, phoneCheckTimeout]);
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedPhone = formatPhoneNumber(e.target.value);
+    setMobile(formattedPhone);
+  };
+
+  const isFormValid = () => {
+    if (isLogin) {
+      return email && password;
+    }
+    return (
+      name &&
+      email &&
+      password &&
+      mobile &&
+      emailValidation.isValid &&
+      phoneValidation.isValid &&
+      !emailValidation.checking &&
+      !phoneValidation.checking
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
+
+    // Additional validation before submission
+    if (!isLogin && (!emailValidation.isValid || !phoneValidation.isValid)) {
+      setMessage("Please fix the validation errors before submitting");
+      setLoading(false);
+      return;
+    }
 
     try {
       if (isLogin) {
@@ -117,15 +266,48 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro }) => {
                     >
                       Mobile Number
                     </Label>
-                    <Input
-                      id="mobile"
-                      type="tel"
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
-                      required={!isLogin}
-                      className="mt-2 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-200"
-                      placeholder="Enter your mobile number"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="mobile"
+                        type="tel"
+                        value={mobile}
+                        onChange={handlePhoneChange}
+                        required={!isLogin}
+                        className={`mt-2 rounded-xl pr-10 ${
+                          mobile
+                            ? phoneValidation.checking
+                              ? "border-yellow-300"
+                              : phoneValidation.isValid
+                                ? "border-green-300"
+                                : "border-red-300"
+                            : "border-blue-200"
+                        } focus:border-blue-500 focus:ring-blue-200`}
+                        placeholder="(123) 456-7890"
+                      />
+                      {mobile && (
+                        <div className="absolute right-3 top-5">
+                          {phoneValidation.checking ? (
+                            <div className="w-4 h-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
+                          ) : phoneValidation.isValid ? (
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <AlertCircle className="w-4 h-4 text-red-600" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {mobile &&
+                      !phoneValidation.isValid &&
+                      phoneValidation.message && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {phoneValidation.message}
+                        </p>
+                      )}
+                    {mobile && phoneValidation.checking && (
+                      <p className="mt-1 text-sm text-yellow-600">
+                        Checking phone availability...
+                      </p>
+                    )}
                   </div>
                 </>
               )}
@@ -134,15 +316,49 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro }) => {
                 <Label htmlFor="email" className="text-gray-700 font-semibold">
                   Email Address
                 </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="mt-2 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-200"
-                  placeholder="Enter your email"
-                />
+                <div className="relative">
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={handleEmailChange}
+                    required
+                    className={`mt-2 rounded-xl pr-10 ${
+                      !isLogin && email
+                        ? emailValidation.checking
+                          ? "border-yellow-300"
+                          : emailValidation.isValid
+                            ? "border-green-300"
+                            : "border-red-300"
+                        : "border-blue-200"
+                    } focus:border-blue-500 focus:ring-blue-200`}
+                    placeholder="Enter your email"
+                  />
+                  {!isLogin && email && (
+                    <div className="absolute right-3 top-5">
+                      {emailValidation.checking ? (
+                        <div className="w-4 h-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
+                      ) : emailValidation.isValid ? (
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 text-red-600" />
+                      )}
+                    </div>
+                  )}
+                </div>
+                {!isLogin &&
+                  email &&
+                  !emailValidation.isValid &&
+                  emailValidation.message && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {emailValidation.message}
+                    </p>
+                  )}
+                {!isLogin && email && emailValidation.checking && (
+                  <p className="mt-1 text-sm text-yellow-600">
+                    Checking email availability...
+                  </p>
+                )}
               </div>
 
               <div>
@@ -165,8 +381,8 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro }) => {
 
               <Button
                 type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                disabled={loading || !isFormValid()}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   "Processing..."
