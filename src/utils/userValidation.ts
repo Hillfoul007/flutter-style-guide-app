@@ -3,6 +3,10 @@ import {
   comprehensiveEmailValidation,
   validateEmailFormat,
 } from "./bounceEmailPrevention";
+import {
+  validateIndianPhoneNumber,
+  formatIndianNumber,
+} from "./indianPhoneValidation";
 
 export interface ValidationResult {
   isValid: boolean;
@@ -146,18 +150,10 @@ export const validateUserCredentials = async (
   return [emailValidation, phoneValidation].filter((result) => !result.isValid);
 };
 
-// Utility function to format phone number for consistency
+// Utility function to format phone number for Indian numbers
 export const formatPhoneNumber = (phone: string): string => {
-  // Remove all non-digit characters
-  const digits = phone.replace(/\D/g, "");
-
-  // Format as (XXX) XXX-XXXX if it's a 10-digit US number
-  if (digits.length === 10) {
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-  }
-
-  // Return as-is if not a standard format
-  return phone;
+  const validation = validateIndianPhoneNumber(phone);
+  return validation.formatted;
 };
 
 // Enhanced email validation using bounce prevention
@@ -166,9 +162,8 @@ export const isValidEmail = (email: string): boolean => {
   return result.isValid;
 };
 
-// Phone validation (US format)
+// Phone validation (Indian format)
 export const isValidPhoneNumber = (phone: string): boolean => {
-  const phoneRegex = /^\(?(\d{3})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})$/;
-  const digits = phone.replace(/\D/g, "");
-  return digits.length === 10 || phoneRegex.test(phone);
+  const validation = validateIndianPhoneNumber(phone);
+  return validation.isValid;
 };
