@@ -1,24 +1,16 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, MapPin, User, Trash2 } from 'lucide-react';
-import { useBookings } from '@/hooks/useBookings';
-import { useAuth } from '@/contexts/AuthContext';
 
 const BookingHistory = () => {
-  const { bookings, loading, deleteBooking, clearAllBookings } = useBookings();
-  const { user } = useAuth();
+  const [bookings, setBookings] = useState([]);
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Sign In Required</h2>
-          <p className="text-gray-600">Please sign in to view your booking history.</p>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    // Load bookings from localStorage
+    const savedBookings = JSON.parse(localStorage.getItem('bookingHistory') || '[]');
+    setBookings(savedBookings);
+  }, []);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -33,28 +25,18 @@ const BookingHistory = () => {
     }
   };
 
-  const handleDeleteBooking = async (bookingId) => {
-    if (confirm('Are you sure you want to delete this booking?')) {
-      await deleteBooking(bookingId);
-    }
+  const deleteBooking = (bookingId) => {
+    const updatedBookings = bookings.filter(booking => booking.id !== bookingId);
+    setBookings(updatedBookings);
+    localStorage.setItem('bookingHistory', JSON.stringify(updatedBookings));
   };
 
-  const handleClearAllBookings = async () => {
+  const clearAllBookings = () => {
     if (confirm('Are you sure you want to clear all booking history?')) {
-      await clearAllBookings();
+      setBookings([]);
+      localStorage.removeItem('bookingHistory');
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your bookings...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
@@ -68,7 +50,7 @@ const BookingHistory = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleClearAllBookings}
+              onClick={clearAllBookings}
               className="mt-4 border-red-300 text-red-700 hover:bg-red-50 rounded-lg"
             >
               <Trash2 className="w-4 h-4 mr-2" />
@@ -85,11 +67,11 @@ const BookingHistory = () => {
                   <h3 className="font-bold text-gray-900 text-lg">{booking.service}</h3>
                   <div className="flex items-center text-gray-600 mt-1">
                     <User className="w-4 h-4 mr-1" />
-                    <span className="text-sm">{booking.provider_name}</span>
+                    <span className="text-sm">{booking.provider}</span>
                   </div>
-                  {booking.user_email && (
+                  {booking.userEmail && (
                     <div className="text-sm text-blue-600 mt-1">
-                      Booked by: {booking.user_email}
+                      Booked by: {booking.userEmail}
                     </div>
                   )}
                 </div>
@@ -125,7 +107,7 @@ const BookingHistory = () => {
                   </div>
                 )}
                 <div className="text-xs text-gray-500 mt-2">
-                  Booked on: {new Date(booking.booked_at).toLocaleDateString()} at {new Date(booking.booked_at).toLocaleTimeString()}
+                  Booked on: {new Date(booking.bookedAt).toLocaleDateString()} at {new Date(booking.bookedAt).toLocaleTimeString()}
                 </div>
               </div>
 
@@ -140,7 +122,7 @@ const BookingHistory = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleDeleteBooking(booking.id)}
+                  onClick={() => deleteBooking(booking.id)}
                   className="border-red-300 text-red-700 hover:bg-red-50 rounded-lg"
                 >
                   <Trash2 className="w-4 h-4" />
