@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,9 +14,10 @@ const Auth: React.FC<AuthProps> = ({ onBack }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  
+
   const { signIn, signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,12 +73,12 @@ const Auth: React.FC<AuthProps> = ({ onBack }) => {
               {isLogin ? 'Sign in to your account' : 'Join TaskApp today'}
             </p>
           </div>
-          
+
           <div className="p-6">
             {message && (
               <div className={`p-3 rounded-xl mb-4 text-sm ${
-                message.includes('successful') || message.includes('created') 
-                  ? 'bg-green-50 text-green-700 border border-green-200' 
+                message.includes('successful') || message.includes('created')
+                  ? 'bg-green-50 text-green-700 border border-green-200'
                   : 'bg-red-50 text-red-700 border border-red-200'
               }`}>
                 {message}
@@ -87,20 +87,33 @@ const Auth: React.FC<AuthProps> = ({ onBack }) => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {!isLogin && (
-                <div>
-                  <Label htmlFor="name" className="text-gray-700 font-semibold">Full Name</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required={!isLogin}
-                    className="mt-2 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-200"
-                    placeholder="Enter your full name"
+                <>
+                  <div>
+                    <Label htmlFor="name" className="text-gray-700 font-semibold">Full Name</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required={!isLogin}
+                      className="mt-2 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-200"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="mobile" className="text-gray-700 font-semibold">Mobile Number</Label>
+                    <Input
+                      id="mobile"
+                      type="tel"
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                      required={!isLogin}
+                      className="mt-2 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-200"
+                      placeholder="Enter your mobile number"
                   />
                 </div>
               )}
-              
+
               <div>
                 <Label htmlFor="email" className="text-gray-700 font-semibold">Email Address</Label>
                 <Input
@@ -113,7 +126,7 @@ const Auth: React.FC<AuthProps> = ({ onBack }) => {
                   placeholder="Enter your email"
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="password" className="text-gray-700 font-semibold">Password</Label>
                 <Input
@@ -126,9 +139,9 @@ const Auth: React.FC<AuthProps> = ({ onBack }) => {
                   placeholder="Enter your password"
                 />
               </div>
-              
-              <Button 
-                type="submit" 
+
+              <Button
+                type="submit"
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
               >
@@ -147,14 +160,14 @@ const Auth: React.FC<AuthProps> = ({ onBack }) => {
                 )}
               </Button>
             </form>
-            
+
             <div className="text-center mt-6">
               <button
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-300"
               >
-                {isLogin 
-                  ? "Don't have an account? Create one" 
+                {isLogin
+                  ? "Don't have an account? Create one"
                   : "Already have an account? Sign in"
                 }
               </button>
