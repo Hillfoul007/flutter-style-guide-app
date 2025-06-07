@@ -62,9 +62,6 @@ const IndexContent = () => {
       name: "Professional Service Provider",
       specialty: service,
       price: 75,
-      rating: 4.8,
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
     });
     setCurrentView("booking");
   };
@@ -264,9 +261,6 @@ const IndexContent = () => {
         price: Math.round(
           totalPrice / cartItems.reduce((sum, item) => sum + item.quantity, 0),
         ), // Average price
-        rating: 4.8,
-        image:
-          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
       });
 
       setSelectedService("cart-booking");
