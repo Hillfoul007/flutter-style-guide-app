@@ -1,10 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { ShoppingCart, X, Plus, Minus, Trash2 } from 'lucide-react';
-import { useCart } from '@/contexts/CartContext';
+import React, { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart, X, Plus, Minus, Trash2 } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
-const FloatingCartButton = ({ onProceedToBooking }: { onProceedToBooking: () => void }) => {
-  const { cartItems, getTotalItems, getTotalPrice, updateQuantity, removeFromCart, clearCart } = useCart();
+const FloatingCartButton = ({
+  onProceedToBooking,
+}: {
+  onProceedToBooking: () => void;
+}) => {
+  const {
+    cartItems,
+    getTotalItems,
+    getTotalPrice,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+  } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const cartScrollRef = useRef<HTMLDivElement>(null);
 
@@ -19,7 +30,7 @@ const FloatingCartButton = ({ onProceedToBooking }: { onProceedToBooking: () => 
         if (cartScrollRef.current) {
           cartScrollRef.current.scrollTo({
             top: 0,
-            behavior: 'smooth'
+            behavior: "smooth",
           });
         }
       }, 100);
@@ -53,20 +64,29 @@ const FloatingCartButton = ({ onProceedToBooking }: { onProceedToBooking: () => 
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-blue-100 text-sm">{totalItems} items • ${totalPrice.toFixed(2)}</p>
+              <p className="text-blue-100 text-sm">
+                {totalItems} items • ${totalPrice.toFixed(2)}
+              </p>
             </div>
 
             <div
               ref={cartScrollRef}
               className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-gray-100"
-              style={{ maxHeight: 'calc(80vh - 200px)' }}
+              style={{ maxHeight: "calc(80vh - 200px)" }}
             >
               {cartItems.map((item, index) => (
-                <div key={item.id} className="p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
+                <div
+                  key={item.id}
+                  className="relative p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors"
+                >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1 pr-2">
-                      <h4 className="font-medium text-gray-900 text-sm leading-5">{item.name}</h4>
-                      <p className="text-blue-600 font-semibold text-sm mt-1">${item.price} each</p>
+                      <h4 className="font-medium text-gray-900 text-sm leading-5">
+                        {item.name}
+                      </h4>
+                      <p className="text-blue-600 font-semibold text-sm mt-1">
+                        ${item.price} each
+                      </p>
                     </div>
                     <button
                       onClick={() => removeFromCart(item.id)}
@@ -80,7 +100,9 @@ const FloatingCartButton = ({ onProceedToBooking }: { onProceedToBooking: () => 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity - 1)
+                        }
                         className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
                         aria-label={`Decrease quantity of ${item.name}`}
                       >
@@ -90,7 +112,9 @@ const FloatingCartButton = ({ onProceedToBooking }: { onProceedToBooking: () => 
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity + 1)
+                        }
                         className="w-8 h-8 rounded-full bg-blue-100 hover:bg-blue-200 flex items-center justify-center transition-colors"
                         aria-label={`Increase quantity of ${item.name}`}
                       >
@@ -109,9 +133,7 @@ const FloatingCartButton = ({ onProceedToBooking }: { onProceedToBooking: () => 
                     </div>
                   )}
                 </div>
-              )}
-                <span className="font-bold text-gray-900">Total:</span>
-                <span className="font-bold text-xl text-blue-600">${totalPrice.toFixed(2)}</span>
+              ))}
             </div>
 
             {/* Scroll indicator for many items */}
@@ -126,7 +148,9 @@ const FloatingCartButton = ({ onProceedToBooking }: { onProceedToBooking: () => 
             <div className="flex-shrink-0 p-4 bg-gray-50 border-t border-gray-100">
               <div className="flex items-center justify-between mb-3">
                 <span className="font-bold text-gray-900">Total:</span>
-                <span className="font-bold text-xl text-blue-600">${totalPrice.toFixed(2)}</span>
+                <span className="font-bold text-xl text-blue-600">
+                  ${totalPrice.toFixed(2)}
+                </span>
               </div>
               <div className="space-y-2">
                 <Button
@@ -157,7 +181,7 @@ const FloatingCartButton = ({ onProceedToBooking }: { onProceedToBooking: () => 
             {totalItems > 0 && (
               <div className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
                 <span className="text-white text-xs font-bold">
-                  {totalItems > 99 ? '99+' : totalItems}
+                  {totalItems > 99 ? "99+" : totalItems}
                 </span>
               </div>
             )}
