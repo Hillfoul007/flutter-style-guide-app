@@ -6,7 +6,7 @@ import BookingFlow from '../components/BookingFlow';
 import BookingHistory from '../components/BookingHistory';
 import Reviews from '../components/Reviews';
 import ProviderRegistration from '../components/ProviderRegistration';
-import { ArrowLeft, History, UserCog } from 'lucide-react';
+import { ArrowLeft, History, UserCog, User } from 'lucide-react';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState('categories');
@@ -24,10 +24,13 @@ const Index = () => {
       setCurrentView('categories');
     } else if (currentView === 'providerRegistration') {
       setCurrentView('categories');
+    } else if (currentView === 'userLogin') {
+      setCurrentView('categories');
     }
   };
 
   const handleServiceSelect = (service) => {
+    console.log('Selected service:', service);
     setSelectedService(service);
     setCurrentView('providers');
   };
@@ -49,7 +52,8 @@ const Index = () => {
       booking: 'Schedule Task',
       reviews: 'Reviews',
       history: 'Booking History',
-      providerRegistration: 'Service Provider Portal'
+      providerRegistration: 'Service Provider Portal',
+      userLogin: 'User Login'
     };
 
     if (currentView === 'categories') {
@@ -62,12 +66,20 @@ const Index = () => {
             <UserCog className="w-5 h-5 text-white" />
           </button>
           <h1 className="text-xl font-bold text-white">TaskApp</h1>
-          <button 
-            onClick={() => setCurrentView('history')}
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
-          >
-            <History className="w-5 h-5 text-white" />
-          </button>
+          <div className="flex space-x-2">
+            <button 
+              onClick={() => setCurrentView('userLogin')}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
+            >
+              <User className="w-5 h-5 text-white" />
+            </button>
+            <button 
+              onClick={() => setCurrentView('history')}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
+            >
+              <History className="w-5 h-5 text-white" />
+            </button>
+          </div>
         </div>
       );
     }
@@ -117,6 +129,53 @@ const Index = () => {
 
         {currentView === 'providerRegistration' && (
           <ProviderRegistration />
+        )}
+
+        {currentView === 'userLogin' && (
+          <div className="p-6">
+            <div className="bg-white rounded-2xl shadow-xl border border-blue-100 p-6">
+              <div className="flex justify-center mb-6">
+                <div className="bg-blue-100 p-4 rounded-full">
+                  <User className="w-12 h-12 text-blue-600" />
+                </div>
+              </div>
+              
+              <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+                User Login
+              </h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-700 mb-2">Email</label>
+                  <input
+                    type="email"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    placeholder="Enter your email"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-700 mb-2">Password</label>
+                  <input
+                    type="password"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    placeholder="Enter your password"
+                  />
+                </div>
+                
+                <button className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-colors">
+                  Login
+                </button>
+                
+                <div className="text-center">
+                  <p className="text-gray-600">Don't have an account?</p>
+                  <button className="text-blue-600 font-medium hover:underline">
+                    Sign up here
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

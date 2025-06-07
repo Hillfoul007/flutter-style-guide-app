@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import StarRating from './StarRating';
@@ -10,10 +9,16 @@ const ProviderList = ({ service, onProviderSelect, onViewReviews }) => {
     // Load only registered service providers from localStorage
     const registeredProviders = JSON.parse(localStorage.getItem('serviceProviders') || '[]');
     
-    // Filter providers by specialty/service if needed
-    const filteredProviders = registeredProviders.filter(provider => 
-      !service || provider.specialty === service || service === 'all'
-    );
+    // Filter providers by specialty/service - show all if service is 'all' or matches specialty
+    const filteredProviders = registeredProviders.filter(provider => {
+      if (!service || service === 'all') return true;
+      // Check if provider's specialty matches the selected service
+      return provider.specialty && provider.specialty.toLowerCase() === service.toLowerCase();
+    });
+    
+    console.log('Service:', service);
+    console.log('Registered providers:', registeredProviders);
+    console.log('Filtered providers:', filteredProviders);
     
     setProviders(filteredProviders);
   }, [service]);
@@ -34,7 +39,7 @@ const ProviderList = ({ service, onProviderSelect, onViewReviews }) => {
         </div>
         
         <div className="text-center py-12">
-          <div className="text-gray-500 text-lg mb-2">No service providers available</div>
+          <div className="text-gray-500 text-lg mb-2">No service providers available for {service}</div>
           <div className="text-gray-400 text-sm">Please check back later or try a different service.</div>
         </div>
       </div>
