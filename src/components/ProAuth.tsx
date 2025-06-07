@@ -19,7 +19,9 @@ import {
   formatPhoneNumber,
 } from "@/utils/userValidation";
 import { validatePassword } from "@/utils/passwordValidation";
+import { suggestEmailCorrection } from "@/utils/bounceEmailPrevention";
 import PasswordRequirements from "@/components/PasswordRequirements";
+import EmailSuggestion from "@/components/EmailSuggestion";
 import {
   UserCog,
   LogIn,
@@ -83,6 +85,10 @@ const ProAuth: React.FC<ProAuthProps> = ({ onBack, mode: initialMode }) => {
     useState<NodeJS.Timeout | null>(null);
   const [phoneCheckTimeout, setPhoneCheckTimeout] =
     useState<NodeJS.Timeout | null>(null);
+  const [emailSuggestions, setEmailSuggestions] = useState<{
+    suggestions: string[];
+    reason: string;
+  } | null>(null);
 
   const specialties = [
     "House Cleaning",
@@ -113,7 +119,23 @@ const ProAuth: React.FC<ProAuthProps> = ({ onBack, mode: initialMode }) => {
         isValid: false,
         message: "Please enter a valid email address",
       });
+
+      // Check for typo suggestions
+      const suggestionResult = suggestEmailCorrection(registerForm.email);
+      if (
+        suggestionResult.suggestions &&
+        suggestionResult.suggestions.length > 0
+      ) {
+        setEmailSuggestions({
+          suggestions: suggestionResult.suggestions,
+          reason: suggestionResult.reason || "Did you mean one of these?",
+        });
+      } else {
+        setEmailSuggestions(null);
+      }
       return;
+    } else {
+      setEmailSuggestions(null);
     }
 
     if (emailCheckTimeout) {
@@ -196,6 +218,15 @@ const ProAuth: React.FC<ProAuthProps> = ({ onBack, mode: initialMode }) => {
       ...prev,
       [field]: field === "phone" ? formatPhoneNumber(value) : value,
     }));
+  };
+
+  const handleEmailSuggestionSelect = (suggestion: string) => {
+    setRegisterForm((prev) => ({ ...prev, email: suggestion }));
+    setEmailSuggestions(null);
+  };
+
+  const handleEmailSuggestionDismiss = () => {
+    setEmailSuggestions(null);
   };
 
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -486,6 +517,14 @@ const ProAuth: React.FC<ProAuthProps> = ({ onBack, mode: initialMode }) => {
                           {emailValidation.message}
                         </p>
                       )}
+                    {emailSuggestions && (
+                      <EmailSuggestion
+                        suggestions={emailSuggestions.suggestions}
+                        reason={emailSuggestions.reason}
+                        onSelectSuggestion={handleEmailSuggestionSelect}
+                        onDismiss={handleEmailSuggestionDismiss}
+                      />
+                    )}
                   </div>
                 </div>
 
