@@ -123,9 +123,6 @@ const BookingFlow = ({ provider }) => {
               Date: {selectedDate?.toLocaleDateString()}
             </p>
             <p className="text-sm text-gray-600">Time: {selectedTime}</p>
-            <p className="text-lg font-bold text-blue-600 mt-2">
-              Total: ${provider.price || 80}
-            </p>
           </div>
 
           <form onSubmit={handlePayment} className="space-y-6">
@@ -220,7 +217,7 @@ const BookingFlow = ({ provider }) => {
               type="submit"
               className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 rounded-xl"
             >
-              💳 Pay ${provider.price || 80}
+              💳 Complete Payment
             </Button>
           </form>
 
@@ -249,9 +246,6 @@ const BookingFlow = ({ provider }) => {
             <h2 className="text-2xl font-bold text-gray-900">
               {provider.name}
             </h2>
-            <p className="text-xl text-blue-600 font-semibold">
-              ${provider.price}/hr
-            </p>
           </div>
           {user && (
             <div className="ml-auto text-right">
