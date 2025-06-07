@@ -10,38 +10,13 @@ export const checkEmailExists = async (
   email: string,
 ): Promise<ValidationResult> => {
   try {
-    // Check if email exists in auth.users
-    const { data, error } = await supabase.auth.admin.listUsers();
+    // Use password reset request to check if email exists (client-safe method)
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "https://dummy-url-that-will-never-be-used.com",
+    });
 
-    if (error) {
-      console.error("Error checking email existence:", error);
-      // Fallback: try to sign in with dummy password to check if email exists
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: "dummy-password-check-123",
-      });
-
-      if (signInError?.message?.includes("Invalid login credentials")) {
-        // Could be invalid password OR invalid email, so we can't be sure
-        return { isValid: true }; // Allow to proceed
-      } else if (signInError?.message?.includes("Email not confirmed")) {
-        return {
-          isValid: false,
-          message:
-            "This email is already registered but not confirmed. Please check your email for verification.",
-          field: "email",
-        };
-      } else if (signInError?.message?.includes("Invalid")) {
-        return { isValid: true }; // Email might not exist
-      }
-
-      return { isValid: true }; // Default to allowing if we can't check
-    }
-
-    // Check if email exists in the users list
-    const existingUser = data?.users?.find((user) => user.email === email);
-
-    if (existingUser) {
+    // If no error, email exists in the system
+    if (!error) {
       return {
         isValid: false,
         message:
@@ -50,10 +25,68 @@ export const checkEmailExists = async (
       };
     }
 
+    // Check specific error messages
+    if (
+      error.message?.includes("User not found") ||
+      error.message?.includes("Invalid email")
+    ) {
+      // Email doesn't exist, safe to use
+      return { isValid: true };
+    }
+
+    if (error.message?.includes("Email not confirmed")) {
+      return {
+        isValid: false,
+        message:
+          "This email is already registered but not confirmed. Please check your email for verification.",
+        field: "email",
+      };
+    }
+
+    // For any other error, we'll check with a fallback method
+    console.log("Password reset check inconclusive, trying fallback method");
+
+    // Fallback: try to sign in with a very unlikely password
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: "impossible-password-12345-!@#$%",
+    });
+
+    if (signInError) {
+      if (
+        signInError.message?.includes("Invalid login credentials") ||
+        signInError.message?.includes("Wrong email or password")
+      ) {
+        // This usually means the email exists but password is wrong
+        return {
+          isValid: false,
+          message:
+            "This email is already associated with an account. Please use a different email or sign in.",
+          field: "email",
+        };
+      } else if (signInError.message?.includes("Email not confirmed")) {
+        return {
+          isValid: false,
+          message:
+            "This email is already registered but not confirmed. Please check your email for verification.",
+          field: "email",
+        };
+      } else if (
+        signInError.message?.includes("User not found") ||
+        signInError.message?.includes("Invalid email")
+      ) {
+        // Email doesn't exist
+        return { isValid: true };
+      }
+    }
+
+    // If we can't determine, allow to proceed (better UX than blocking)
+    console.log("Could not determine email existence, allowing to proceed");
     return { isValid: true };
   } catch (error) {
     console.error("Unexpected error checking email:", error);
-    return { isValid: true }; // Default to allowing if we can't check
+    // Default to allowing if we can't check (better UX)
+    return { isValid: true };
   }
 };
 
