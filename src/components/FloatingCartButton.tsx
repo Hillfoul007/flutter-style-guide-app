@@ -50,16 +50,16 @@ const FloatingCartButton = ({
       )}
 
       {/* Floating Cart Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
         {/* Cart Details Panel */}
         {isOpen && (
-          <div className="absolute bottom-20 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 mb-4 max-h-[80vh] overflow-hidden flex flex-col">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-4 text-white flex-shrink-0">
+          <div className="absolute bottom-16 sm:bottom-20 right-0 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-white rounded-2xl shadow-2xl border border-gray-200 mb-4 max-h-[70vh] sm:max-h-[80vh] overflow-hidden flex flex-col">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-4 sm:p-4 text-white flex-shrink-0">
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-lg">Your Cart</h3>
+                <h3 className="font-bold text-lg sm:text-lg">Your Cart</h3>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1 hover:bg-white/20 rounded-full transition-colors"
+                  className="p-2 hover:bg-white/20 rounded-full transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -139,23 +139,25 @@ const FloatingCartButton = ({
             )}
 
             <div className="flex-shrink-0 p-4 bg-gray-50 border-t border-gray-100">
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-bold text-gray-900">Total:</span>
+              <div className="flex items-center justify-between mb-4">
+                <span className="font-bold text-gray-900 text-base">
+                  Total:
+                </span>
                 <span className="font-bold text-xl text-blue-600">
                   ${totalPrice.toFixed(2)}
                 </span>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Button
                   onClick={onProceedToBooking}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold py-2 rounded-xl transition-all duration-200 hover:scale-[1.02]"
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 active:scale-95 text-base"
                 >
                   Proceed to Booking ({totalItems} items)
                 </Button>
                 <Button
                   onClick={clearCart}
                   variant="outline"
-                  className="w-full border-red-300 text-red-700 hover:bg-red-50 rounded-xl"
+                  className="w-full border-red-300 text-red-700 hover:bg-red-50 rounded-xl py-3 px-4 text-base active:scale-95 transition-all duration-200"
                 >
                   Clear Cart
                 </Button>
@@ -167,10 +169,10 @@ const FloatingCartButton = ({
         {/* Cart Button */}
         <Button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300"
+          className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-2xl hover:shadow-3xl transform active:scale-95 hover:scale-110 transition-all duration-300"
         >
           <div className="relative">
-            <ShoppingCart className="w-6 h-6 text-white" />
+            <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             {totalItems > 0 && (
               <div className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
                 <span className="text-white text-xs font-bold">

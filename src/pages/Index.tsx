@@ -193,39 +193,57 @@ const IndexContent = () => {
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
             <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-sm shadow-2xl border-t border-white/20 z-50">
-              <div className="p-4 space-y-3">
+              <div className="p-6 space-y-4">
                 {user ? (
                   <>
-                    <div className="p-3 bg-blue-50 rounded-xl">
-                      <span className="text-blue-900 font-medium text-sm">
-                        Welcome, {user.email}
+                    <div className="p-4 bg-blue-50 rounded-xl">
+                      <span className="text-blue-900 font-medium text-base">
+                        Welcome!
                       </span>
+                      <div className="text-blue-700 text-sm mt-1 truncate">
+                        {user.email}
+                      </div>
                     </div>
                     <button
                       onClick={() => setCurrentView("history")}
-                      className="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300"
+                      className="w-full flex items-center space-x-4 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300 active:scale-95"
                     >
-                      <History className="w-5 h-5 text-blue-600" />
-                      <span className="text-blue-900 font-medium">
+                      <History className="w-6 h-6 text-blue-600" />
+                      <span className="text-blue-900 font-medium text-lg">
                         My Bookings
                       </span>
                     </button>
                     <button
                       onClick={handleSignOut}
-                      className="w-full flex items-center space-x-3 p-3 bg-red-50 hover:bg-red-100 rounded-xl transition-all duration-300"
+                      className="w-full flex items-center space-x-4 p-4 bg-red-50 hover:bg-red-100 rounded-xl transition-all duration-300 active:scale-95"
                     >
-                      <LogOut className="w-5 h-5 text-red-600" />
-                      <span className="text-red-900 font-medium">Sign Out</span>
+                      <LogOut className="w-6 h-6 text-red-600" />
+                      <span className="text-red-900 font-medium text-lg">
+                        Sign Out
+                      </span>
                     </button>
                   </>
                 ) : (
-                  <button
-                    onClick={() => setCurrentView("auth")}
-                    className="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300"
-                  >
-                    <User className="w-5 h-5 text-blue-600" />
-                    <span className="text-blue-900 font-medium">Sign In</span>
-                  </button>
+                  <>
+                    <button
+                      onClick={() => setCurrentView("auth")}
+                      className="w-full flex items-center space-x-4 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300 active:scale-95"
+                    >
+                      <User className="w-6 h-6 text-blue-600" />
+                      <span className="text-blue-900 font-medium text-lg">
+                        Sign In
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => setCurrentView("proAuth")}
+                      className="w-full flex items-center space-x-4 p-4 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-all duration-300 active:scale-95"
+                    >
+                      <UserCog className="w-6 h-6 text-emerald-600" />
+                      <span className="text-emerald-900 font-medium text-lg">
+                        Join as a Pro
+                      </span>
+                    </button>
+                  </>
                 )}
               </div>
             </div>

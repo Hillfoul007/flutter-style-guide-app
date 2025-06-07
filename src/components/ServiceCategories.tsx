@@ -113,16 +113,18 @@ const ServiceCategories = ({ onServiceSelect }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <div className="p-6">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+      <div className="p-4 sm:p-6">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
             Book a Service
           </h1>
-          <p className="text-gray-600">Choose from our professional services</p>
+          <p className="text-gray-600 text-sm sm:text-base">
+            Choose from our professional services
+          </p>
         </div>
 
         {/* Location Section */}
-        <div className="mb-6 bg-white rounded-2xl p-6 shadow-lg border border-blue-100">
+        <div className="mb-6 bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-blue-100">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">
             📍 Service Location
           </h3>
@@ -130,7 +132,7 @@ const ServiceCategories = ({ onServiceSelect }) => {
             <div className="flex space-x-2">
               <Button
                 onClick={handleAutoLocation}
-                className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl"
+                className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl py-3 px-4 text-sm sm:text-base active:scale-95 transition-all duration-200"
                 disabled={isLocationAuto}
               >
                 <MapPin className="w-4 h-4 mr-2" />
@@ -142,33 +144,35 @@ const ServiceCategories = ({ onServiceSelect }) => {
                 placeholder="Enter area, city manually"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="pl-10 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                className="pl-10 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-500 py-3 text-base"
               />
-              <MapPin className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+              <MapPin className="w-4 h-4 absolute left-3 top-3.5 text-gray-400" />
             </div>
           </div>
         </div>
 
         {/* Service Categories Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 pb-20">
           {services.map((service) => {
             const quantity = getItemQuantity(service.id);
             return (
               <div
                 key={service.id}
-                className="p-6 bg-white border border-blue-100 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+                className="p-4 sm:p-6 bg-white border border-blue-100 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                <div className="text-4xl mb-4 text-center">{service.icon}</div>
-                <h3 className="font-bold text-gray-900 mb-2 text-lg text-center">
+                <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 text-center">
+                  {service.icon}
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2 text-base sm:text-lg text-center">
                   {service.name}
                 </h3>
-                <p className="text-sm text-gray-600 mb-3 text-center">
+                <p className="text-xs sm:text-sm text-gray-600 mb-3 text-center leading-relaxed">
                   {service.description}
                 </p>
 
                 {/* Price and Rating */}
                 <div className="mb-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600 mb-1">
+                  <div className="text-xl sm:text-2xl font-bold text-blue-600 mb-1">
                     ${service.price}
                   </div>
                   <div className="text-xs text-gray-500 mb-2">per hour</div>
@@ -189,29 +193,29 @@ const ServiceCategories = ({ onServiceSelect }) => {
                     <Button
                       onClick={() => handleAddToCart(service)}
                       variant="outline"
-                      className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 rounded-xl"
+                      className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 rounded-xl py-3 px-4 text-sm sm:text-base active:scale-95 transition-all duration-200"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Add to Cart
                     </Button>
                   ) : (
-                    <div className="flex items-center justify-center space-x-3 p-2 bg-blue-50 rounded-xl">
+                    <div className="flex items-center justify-center space-x-4 p-3 bg-blue-50 rounded-xl">
                       <button
                         onClick={() =>
                           handleUpdateQuantity(service.id, quantity - 1)
                         }
-                        className="w-8 h-8 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition-all"
+                        className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition-all active:scale-95"
                       >
                         <Minus className="w-4 h-4 text-blue-600" />
                       </button>
-                      <span className="font-bold text-blue-900 min-w-[2rem] text-center">
+                      <span className="font-bold text-blue-900 min-w-[2.5rem] text-center text-lg">
                         {quantity}
                       </span>
                       <button
                         onClick={() =>
                           handleUpdateQuantity(service.id, quantity + 1)
                         }
-                        className="w-8 h-8 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition-all"
+                        className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition-all active:scale-95"
                       >
                         <Plus className="w-4 h-4 text-blue-600" />
                       </button>
@@ -222,7 +226,7 @@ const ServiceCategories = ({ onServiceSelect }) => {
                 {/* Book Now Button */}
                 <Button
                   onClick={() => handleBookNow(service)}
-                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl"
+                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl py-3 px-4 text-sm sm:text-base font-semibold active:scale-95 transition-all duration-200"
                 >
                   Book Now
                 </Button>
