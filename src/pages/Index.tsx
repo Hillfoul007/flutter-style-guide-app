@@ -1,18 +1,26 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ServiceCategories from '../components/ServiceCategories';
 import ProviderList from '../components/ProviderList';
 import BookingFlow from '../components/BookingFlow';
 import BookingHistory from '../components/BookingHistory';
 import Reviews from '../components/Reviews';
 import ProviderRegistration from '../components/ProviderRegistration';
-import { ArrowLeft, History, UserCog, User, Menu, X } from 'lucide-react';
+import Auth from '../components/Auth';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { ArrowLeft, History, UserCog, User, Menu, X, LogOut } from 'lucide-react';
 
-const Index = () => {
+const IndexContent = () => {
   const [currentView, setCurrentView] = useState('categories');
   const [selectedService, setSelectedService] = useState('');
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, signOut, loading } = useAuth();
+
+  useEffect(() => {
+    // Close mobile menu when view changes
+    setIsMobileMenuOpen(false);
+  }, [currentView]);
 
   const navigateBack = () => {
     if (currentView === 'booking') {
@@ -25,7 +33,7 @@ const Index = () => {
       setCurrentView('categories');
     } else if (currentView === 'providerRegistration') {
       setCurrentView('categories');
-    } else if (currentView === 'userLogin') {
+    } else if (currentView === 'auth') {
       setCurrentView('categories');
     }
   };
@@ -46,6 +54,23 @@ const Index = () => {
     setCurrentView('reviews');
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    setCurrentView('categories');
+  };
+
+  const requiresAuth = ['history', 'booking'].includes(currentView);
+
+  // Show auth screen if user tries to access protected content
+  if (requiresAuth && !user && !loading) {
+    return <Auth onBack={() => setCurrentView('categories')} />;
+  }
+
+  // Show auth screen if current view is auth
+  if (currentView === 'auth') {
+    return <Auth onBack={() => setCurrentView('categories')} />;
+  }
+
   const renderHeader = () => {
     const titles = {
       categories: 'TaskApp',
@@ -53,8 +78,7 @@ const Index = () => {
       booking: 'Book Service',
       reviews: 'Reviews',
       history: 'My Bookings',
-      providerRegistration: 'Join as Pro',
-      userLogin: 'Sign In'
+      providerRegistration: 'Join as Pro'
     };
 
     if (currentView === 'categories') {
@@ -74,27 +98,42 @@ const Index = () => {
             
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-3">
-              <button 
-                onClick={() => setCurrentView('userLogin')}
-                className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
-              >
-                <User className="w-4 h-4 text-white" />
-                <span className="text-white font-medium">Sign In</span>
-              </button>
-              <button 
-                onClick={() => setCurrentView('history')}
-                className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
-              >
-                <History className="w-4 h-4 text-white" />
-                <span className="text-white font-medium">Bookings</span>
-              </button>
-              <button 
-                onClick={() => setCurrentView('providerRegistration')}
-                className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
-              >
-                <UserCog className="w-4 h-4 text-white" />
-                <span className="text-white font-medium">Join as Pro</span>
-              </button>
+              {user ? (
+                <>
+                  <div className="text-white text-sm">
+                    Welcome, {user.email}
+                  </div>
+                  <button 
+                    onClick={() => setCurrentView('history')}
+                    className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
+                  >
+                    <History className="w-4 h-4 text-white" />
+                    <span className="text-white font-medium">Bookings</span>
+                  </button>
+                  <button 
+                    onClick={() => setCurrentView('providerRegistration')}
+                    className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
+                  >
+                    <UserCog className="w-4 h-4 text-white" />
+                    <span className="text-white font-medium">Join as Pro</span>
+                  </button>
+                  <button 
+                    onClick={handleSignOut}
+                    className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
+                  >
+                    <LogOut className="w-4 h-4 text-white" />
+                    <span className="text-white font-medium">Sign Out</span>
+                  </button>
+                </>
+              ) : (
+                <button 
+                  onClick={() => setCurrentView('auth')}
+                  className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
+                >
+                  <User className="w-4 h-4 text-white" />
+                  <span className="text-white font-medium">Sign In</span>
+                </button>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -114,36 +153,42 @@ const Index = () => {
           {isMobileMenuOpen && (
             <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-sm shadow-2xl border-t border-white/20 z-50">
               <div className="p-4 space-y-3">
-                <button 
-                  onClick={() => {
-                    setCurrentView('userLogin');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300"
-                >
-                  <User className="w-5 h-5 text-blue-600" />
-                  <span className="text-blue-900 font-medium">Sign In</span>
-                </button>
-                <button 
-                  onClick={() => {
-                    setCurrentView('history');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300"
-                >
-                  <History className="w-5 h-5 text-blue-600" />
-                  <span className="text-blue-900 font-medium">My Bookings</span>
-                </button>
-                <button 
-                  onClick={() => {
-                    setCurrentView('providerRegistration');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300"
-                >
-                  <UserCog className="w-5 h-5 text-blue-600" />
-                  <span className="text-blue-900 font-medium">Join as Pro</span>
-                </button>
+                {user ? (
+                  <>
+                    <div className="p-3 bg-blue-50 rounded-xl">
+                      <span className="text-blue-900 font-medium text-sm">Welcome, {user.email}</span>
+                    </div>
+                    <button 
+                      onClick={() => setCurrentView('history')}
+                      className="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300"
+                    >
+                      <History className="w-5 h-5 text-blue-600" />
+                      <span className="text-blue-900 font-medium">My Bookings</span>
+                    </button>
+                    <button 
+                      onClick={() => setCurrentView('providerRegistration')}
+                      className="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300"
+                    >
+                      <UserCog className="w-5 h-5 text-blue-600" />
+                      <span className="text-blue-900 font-medium">Join as Pro</span>
+                    </button>
+                    <button 
+                      onClick={handleSignOut}
+                      className="w-full flex items-center space-x-3 p-3 bg-red-50 hover:bg-red-100 rounded-xl transition-all duration-300"
+                    >
+                      <LogOut className="w-5 h-5 text-red-600" />
+                      <span className="text-red-900 font-medium">Sign Out</span>
+                    </button>
+                  </>
+                ) : (
+                  <button 
+                    onClick={() => setCurrentView('auth')}
+                    className="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300"
+                  >
+                    <User className="w-5 h-5 text-blue-600" />
+                    <span className="text-blue-900 font-medium">Sign In</span>
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -166,6 +211,17 @@ const Index = () => {
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
@@ -208,54 +264,17 @@ const Index = () => {
           {currentView === 'providerRegistration' && (
             <ProviderRegistration />
           )}
-
-          {currentView === 'userLogin' && (
-            <div className="p-4 md:p-6">
-              <div className="max-w-md mx-auto bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 text-center">
-                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <User className="w-8 h-8 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
-                  <p className="text-blue-100">Sign in to your account</p>
-                </div>
-                
-                <div className="p-6 space-y-6">
-                  <div>
-                    <label className="block text-gray-700 font-semibold mb-2">Email Address</label>
-                    <input
-                      type="email"
-                      className="w-full p-4 border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
-                      placeholder="Enter your email"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-gray-700 font-semibold mb-2">Password</label>
-                    <input
-                      type="password"
-                      className="w-full p-4 border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
-                      placeholder="Enter your password"
-                    />
-                  </div>
-                  
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold py-4 rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
-                    Sign In
-                  </button>
-                  
-                  <div className="text-center space-y-3">
-                    <p className="text-gray-600">Don't have an account?</p>
-                    <button className="text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-300">
-                      Create Account
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <AuthProvider>
+      <IndexContent />
+    </AuthProvider>
   );
 };
 

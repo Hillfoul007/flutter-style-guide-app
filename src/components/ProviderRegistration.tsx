@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,22 +11,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { UserCog, Mail, Phone, MapPin, Briefcase, Upload, CheckCircle, LogIn } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useServiceProviders } from '@/hooks/useServiceProviders';
+import { supabase } from '@/integrations/supabase/client';
 
 const ProviderRegistration = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [providerData, setProviderData] = useState(null);
-  
-  const [loginForm, setLoginForm] = useState({
-    email: '',
-    password: '',
-  });
+  const [providerProfile, setProviderProfile] = useState(null);
+  const [loading, setLoading] = useState(false);
   
   const [registrationForm, setRegistrationForm] = useState({
     name: '',
     email: '',
-    password: '',
-    confirmPassword: '',
     phone: '',
     address: '',
     specialty: 'Cleaning',
@@ -37,20 +31,47 @@ const ProviderRegistration = () => {
     profileImage: null,
   });
 
-  useEffect(() => {
-    // Check if provider is already logged in
-    const loggedInProvider = localStorage.getItem('providerData');
-    if (loggedInProvider) {
-      setProviderData(JSON.parse(loggedInProvider));
-      setIsLoggedIn(true);
-    }
-  }, []);
+  const { user } = useAuth();
+  const { createProvider, updateProvider } = useServiceProviders();
 
-  const handleLoginChange = (e) => {
-    setLoginForm({
-      ...loginForm,
-      [e.target.id]: e.target.value
-    });
+  useEffect(() => {
+    if (user) {
+      fetchProviderProfile();
+    }
+  }, [user]);
+
+  const fetchProviderProfile = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('service_providers')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching provider profile:', error);
+        return;
+      }
+
+      if (data) {
+        setProviderProfile(data);
+        setRegistrationForm({
+          name: data.name || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          address: data.address || '',
+          specialty: data.specialty || 'Cleaning',
+          experience: data.experience || '',
+          hourlyRate: data.price?.toString() || '',
+          bio: data.bio || '',
+          profileImage: data.image || null,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching provider profile:', error);
+    }
   };
 
   const handleRegistrationChange = (e) => {
@@ -69,8 +90,6 @@ const ProviderRegistration = () => {
 
   const handleProfileImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      // In a real app, we would upload this to a server
-      // Here we'll just store it as a data URL for demo
       const reader = new FileReader();
       reader.onload = (event) => {
         setRegistrationForm({
@@ -82,93 +101,79 @@ const ProviderRegistration = () => {
     }
   };
 
-  const handleLogin = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    
-    // In a real app, this would validate against a backend
-    // For demo, we'll check if the provider exists in localStorage
-    const providers = JSON.parse(localStorage.getItem('serviceProviders') || '[]');
-    const provider = providers.find(p => p.email === loginForm.email && p.password === loginForm.password);
-    
-    if (provider) {
-      localStorage.setItem('providerData', JSON.stringify(provider));
-      setProviderData(provider);
-      setIsLoggedIn(true);
-      alert("Login successful!");
-    } else {
-      alert("Invalid email or password.");
+    setLoading(true);
+
+    try {
+      const providerData = {
+        name: registrationForm.name,
+        email: registrationForm.email,
+        password: 'temp_password', // This is now just for compatibility
+        phone: registrationForm.phone,
+        address: registrationForm.address,
+        specialty: registrationForm.specialty,
+        experience: registrationForm.experience,
+        price: parseInt(registrationForm.hourlyRate, 10) || 25,
+        bio: registrationForm.bio,
+        image: registrationForm.profileImage || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+        rating: 0,
+        reviews: 0,
+      };
+
+      let result;
+      if (providerProfile) {
+        // Update existing profile
+        result = await updateProvider(providerProfile.id, providerData);
+      } else {
+        // Create new profile
+        result = await createProvider(providerData);
+      }
+
+      if (result.error) {
+        alert('Error saving provider profile: ' + result.error.message);
+        return;
+      }
+
+      alert(providerProfile ? 'Profile updated successfully!' : 'Registration successful!');
+      fetchProviderProfile(); // Refresh the profile
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert('Error processing registration. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    
-    if (registrationForm.password !== registrationForm.confirmPassword) {
-      alert("Passwords don't match!");
-      return;
-    }
+  if (!user) {
+    return (
+      <div className="p-6">
+        <div className="bg-white rounded-2xl shadow-xl border border-blue-100 p-6 text-center">
+          <UserCog className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Sign In Required</h2>
+          <p className="text-gray-600 mb-6">Please sign in to register as a service provider.</p>
+        </div>
+      </div>
+    );
+  }
 
-    // Generate a unique ID
-    const newProvider = {
-      id: Date.now(),
-      name: registrationForm.name,
-      email: registrationForm.email,
-      password: registrationForm.password, // In a real app, this would be hashed
-      phone: registrationForm.phone,
-      address: registrationForm.address,
-      specialty: registrationForm.specialty,
-      experience: registrationForm.experience,
-      price: parseInt(registrationForm.hourlyRate, 10) || 25,
-      bio: registrationForm.bio,
-      image: registrationForm.profileImage || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      rating: 0,
-      reviews: 0,
-    };
-
-    // Get existing providers
-    const providers = JSON.parse(localStorage.getItem('serviceProviders') || '[]');
-    
-    // Check if email already exists
-    if (providers.some(p => p.email === registrationForm.email)) {
-      alert("Email already registered. Please use a different email.");
-      return;
-    }
-    
-    // Add new provider
-    providers.push(newProvider);
-    
-    // Save to localStorage
-    localStorage.setItem('serviceProviders', JSON.stringify(providers));
-    localStorage.setItem('providerData', JSON.stringify(newProvider));
-    
-    setProviderData(newProvider);
-    setIsLoggedIn(true);
-    alert("Registration successful!");
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('providerData');
-    setProviderData(null);
-    setIsLoggedIn(false);
-  };
-
-  if (isLoggedIn && providerData) {
+  if (providerProfile && !loading) {
     return (
       <div className="p-6">
         <div className="bg-white rounded-2xl shadow-xl border border-blue-100 p-6 mb-6">
           <div className="flex items-center space-x-4 mb-6">
             <img 
-              src={providerData.image} 
-              alt={providerData.name} 
+              src={providerProfile.image} 
+              alt={providerProfile.name} 
               className="w-20 h-20 rounded-full object-cover border-2 border-blue-300" 
             />
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">{providerData.name}</h2>
-              <p className="text-blue-600 font-semibold">{providerData.specialty}</p>
+              <h2 className="text-2xl font-bold text-gray-800">{providerProfile.name}</h2>
+              <p className="text-blue-600 font-semibold">{providerProfile.specialty}</p>
               <div className="mt-1 text-sm text-gray-500">
                 <div className="flex items-center">
                   <Mail className="w-4 h-4 mr-1" />
-                  <span>{providerData.email}</span>
+                  <span>{providerProfile.email}</span>
                 </div>
               </div>
             </div>
@@ -180,16 +185,16 @@ const ProviderRegistration = () => {
               <div className="flex items-center">
                 <Briefcase className="w-4 h-4 mr-2 text-blue-600" />
                 <span className="font-medium">Specialty:</span>
-                <span className="ml-2">{providerData.specialty}</span>
+                <span className="ml-2">{providerProfile.specialty}</span>
               </div>
               <div className="flex items-center">
                 <CheckCircle className="w-4 h-4 mr-2 text-blue-600" />
                 <span className="font-medium">Experience:</span>
-                <span className="ml-2">{providerData.experience || 'Not specified'}</span>
+                <span className="ml-2">{providerProfile.experience || 'Not specified'}</span>
               </div>
               <div className="flex items-center">
                 <span className="font-medium">Hourly Rate:</span>
-                <span className="ml-2 text-green-600 font-semibold">${providerData.price}/hr</span>
+                <span className="ml-2 text-green-600 font-semibold">${providerProfile.price}/hr</span>
               </div>
             </div>
           </div>
@@ -200,33 +205,29 @@ const ProviderRegistration = () => {
               <div className="flex items-center">
                 <Phone className="w-4 h-4 mr-2 text-blue-600" />
                 <span className="font-medium">Phone:</span>
-                <span className="ml-2">{providerData.phone || 'Not provided'}</span>
+                <span className="ml-2">{providerProfile.phone || 'Not provided'}</span>
               </div>
               <div className="flex items-center">
                 <MapPin className="w-4 h-4 mr-2 text-blue-600" />
                 <span className="font-medium">Address:</span>
-                <span className="ml-2">{providerData.address || 'Not provided'}</span>
+                <span className="ml-2">{providerProfile.address || 'Not provided'}</span>
               </div>
             </div>
           </div>
 
-          {providerData.bio && (
+          {providerProfile.bio && (
             <div className="bg-blue-50 rounded-xl p-4 mb-6">
               <h3 className="font-semibold text-gray-800 mb-2">About Me</h3>
-              <p className="text-gray-600">{providerData.bio}</p>
+              <p className="text-gray-600">{providerProfile.bio}</p>
             </div>
           )}
 
-          <div className="text-center mt-6">
-            <p className="mb-2 text-sm text-gray-500">
-              You are currently logged in as a service provider. Your profile is visible to potential clients.
-            </p>
+          <div className="text-center">
             <Button 
-              onClick={handleLogout}
-              variant="outline" 
-              className="border-red-300 text-red-600 hover:bg-red-50"
+              onClick={() => setProviderProfile(null)}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg mr-4"
             >
-              Log Out
+              Edit Profile
             </Button>
           </div>
         </div>
@@ -244,222 +245,146 @@ const ProviderRegistration = () => {
         </div>
         
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Service Provider Portal
+          {providerProfile ? 'Update Provider Profile' : 'Become a Service Provider'}
         </h2>
         
-        <div className="flex border-b border-gray-200 mb-6">
-          <button
-            className={`flex-1 text-center py-2 font-medium ${isLogin ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-            onClick={() => setIsLogin(true)}
-          >
-            Login
-          </button>
-          <button
-            className={`flex-1 text-center py-2 font-medium ${!isLogin ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-            onClick={() => setIsLogin(false)}
-          >
-            Register
-          </button>
-        </div>
-        
-        {isLogin ? (
-          <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="name" className="text-gray-700">Full Name</Label>
+              <Input
+                id="name"
+                value={registrationForm.name}
+                onChange={handleRegistrationChange}
+                required
+                className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            
             <div>
               <Label htmlFor="email" className="text-gray-700">Email</Label>
               <Input
                 id="email"
                 type="email"
-                value={loginForm.email}
-                onChange={handleLoginChange}
+                value={registrationForm.email}
+                onChange={handleRegistrationChange}
                 required
                 className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
-            
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="password" className="text-gray-700">Password</Label>
+              <Label htmlFor="phone" className="text-gray-700">Phone Number</Label>
               <Input
-                id="password"
-                type="password"
-                value={loginForm.password}
-                onChange={handleLoginChange}
-                required
-                className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-2 rounded-lg"
-            >
-              <LogIn className="w-4 h-4 mr-2" />
-              Login as Provider
-            </Button>
-          </form>
-        ) : (
-          <form onSubmit={handleRegister} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name" className="text-gray-700">Full Name</Label>
-                <Input
-                  id="name"
-                  value={registrationForm.name}
-                  onChange={handleRegistrationChange}
-                  required
-                  className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="email" className="text-gray-700">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={registrationForm.email}
-                  onChange={handleRegistrationChange}
-                  required
-                  className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="password" className="text-gray-700">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={registrationForm.password}
-                  onChange={handleRegistrationChange}
-                  required
-                  className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="confirmPassword" className="text-gray-700">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={registrationForm.confirmPassword}
-                  onChange={handleRegistrationChange}
-                  required
-                  className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="phone" className="text-gray-700">Phone Number</Label>
-                <Input
-                  id="phone"
-                  value={registrationForm.phone}
-                  onChange={handleRegistrationChange}
-                  className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="specialty" className="text-gray-700">Specialty</Label>
-                <Select 
-                  onValueChange={handleSpecialtyChange}
-                  defaultValue={registrationForm.specialty}
-                >
-                  <SelectTrigger className="mt-1 rounded-lg border-blue-200">
-                    <SelectValue placeholder="Select a specialty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Cleaning">Cleaning</SelectItem>
-                    <SelectItem value="Plumbing">Plumbing</SelectItem>
-                    <SelectItem value="Electrical">Electrical</SelectItem>
-                    <SelectItem value="Carpentry">Carpentry</SelectItem>
-                    <SelectItem value="Painting">Painting</SelectItem>
-                    <SelectItem value="Gardening">Gardening</SelectItem>
-                    <SelectItem value="General Repairs">General Repairs</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="experience" className="text-gray-700">Years of Experience</Label>
-                <Input
-                  id="experience"
-                  value={registrationForm.experience}
-                  onChange={handleRegistrationChange}
-                  className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="hourlyRate" className="text-gray-700">Hourly Rate ($)</Label>
-                <Input
-                  id="hourlyRate"
-                  type="number"
-                  min="0"
-                  value={registrationForm.hourlyRate}
-                  onChange={handleRegistrationChange}
-                  className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="address" className="text-gray-700">Address</Label>
-              <Input
-                id="address"
-                value={registrationForm.address}
+                id="phone"
+                value={registrationForm.phone}
                 onChange={handleRegistrationChange}
                 className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             
             <div>
-              <Label htmlFor="bio" className="text-gray-700">Bio (Tell clients about yourself)</Label>
-              <Textarea
-                id="bio"
-                value={registrationForm.bio}
+              <Label htmlFor="specialty" className="text-gray-700">Specialty</Label>
+              <Select 
+                onValueChange={handleSpecialtyChange}
+                value={registrationForm.specialty}
+              >
+                <SelectTrigger className="mt-1 rounded-lg border-blue-200">
+                  <SelectValue placeholder="Select a specialty" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cleaning">Cleaning</SelectItem>
+                  <SelectItem value="Plumbing">Plumbing</SelectItem>
+                  <SelectItem value="Electrical">Electrical</SelectItem>
+                  <SelectItem value="Carpentry">Carpentry</SelectItem>
+                  <SelectItem value="Painting">Painting</SelectItem>
+                  <SelectItem value="Gardening">Gardening</SelectItem>
+                  <SelectItem value="General Repairs">General Repairs</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="experience" className="text-gray-700">Years of Experience</Label>
+              <Input
+                id="experience"
+                value={registrationForm.experience}
                 onChange={handleRegistrationChange}
-                className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500 min-h-[100px]"
+                className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             
             <div>
-              <Label htmlFor="profileImage" className="text-gray-700">Profile Image</Label>
-              <div className="mt-1 flex items-center">
-                {registrationForm.profileImage ? (
-                  <div className="mr-4">
-                    <img
-                      src={registrationForm.profileImage}
-                      alt="Profile Preview"
-                      className="h-16 w-16 rounded-full object-cover"
-                    />
-                  </div>
-                ) : null}
-                <label className="cursor-pointer bg-blue-50 hover:bg-blue-100 text-blue-600 py-2 px-4 rounded-lg flex items-center transition duration-300">
-                  <Upload className="w-4 h-4 mr-2" />
-                  <span>Upload Image</span>
-                  <input
-                    id="profileImage"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleProfileImageChange}
-                    className="hidden"
+              <Label htmlFor="hourlyRate" className="text-gray-700">Hourly Rate ($)</Label>
+              <Input
+                id="hourlyRate"
+                type="number"
+                min="0"
+                value={registrationForm.hourlyRate}
+                onChange={handleRegistrationChange}
+                className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <Label htmlFor="address" className="text-gray-700">Address</Label>
+            <Input
+              id="address"
+              value={registrationForm.address}
+              onChange={handleRegistrationChange}
+              className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="bio" className="text-gray-700">Bio (Tell clients about yourself)</Label>
+            <Textarea
+              id="bio"
+              value={registrationForm.bio}
+              onChange={handleRegistrationChange}
+              className="mt-1 rounded-lg border-blue-200 focus:border-blue-500 focus:ring-blue-500 min-h-[100px]"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="profileImage" className="text-gray-700">Profile Image</Label>
+            <div className="mt-1 flex items-center">
+              {registrationForm.profileImage ? (
+                <div className="mr-4">
+                  <img
+                    src={registrationForm.profileImage}
+                    alt="Profile Preview"
+                    className="h-16 w-16 rounded-full object-cover"
                   />
-                </label>
-              </div>
+                </div>
+              ) : null}
+              <label className="cursor-pointer bg-blue-50 hover:bg-blue-100 text-blue-600 py-2 px-4 rounded-lg flex items-center transition duration-300">
+                <Upload className="w-4 h-4 mr-2" />
+                <span>Upload Image</span>
+                <input
+                  id="profileImage"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfileImageChange}
+                  className="hidden"
+                />
+              </label>
             </div>
-            
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-2 rounded-lg"
-            >
-              Register as Service Provider
-            </Button>
-          </form>
-        )}
+          </div>
+          
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-2 rounded-lg"
+          >
+            {loading ? 'Processing...' : (providerProfile ? 'Update Profile' : 'Register as Service Provider')}
+          </Button>
+        </form>
       </div>
     </div>
   );

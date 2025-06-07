@@ -3,26 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import StarRating from './StarRating';
 import { MapPin, Filter, Star, Clock, Shield } from 'lucide-react';
+import { useServiceProviders } from '@/hooks/useServiceProviders';
 
 const ProviderList = ({ service, onProviderSelect, onViewReviews }) => {
-  const [providers, setProviders] = useState([]);
+  const { providers, loading } = useServiceProviders();
   const [sortBy, setSortBy] = useState('rating');
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    const registeredProviders = JSON.parse(localStorage.getItem('serviceProviders') || '[]');
-    
-    const filteredProviders = registeredProviders.filter(provider => {
-      if (!service || service === 'all') return true;
-      return provider.specialty && provider.specialty.toLowerCase() === service.toLowerCase();
-    });
-    
-    console.log('Service:', service);
-    console.log('Registered providers:', registeredProviders);
-    console.log('Filtered providers:', filteredProviders);
-    
-    setProviders(filteredProviders);
-  }, [service]);
+  const filteredProviders = providers.filter(provider => {
+    if (!service || service === 'all') return true;
+    return provider.specialty && provider.specialty.toLowerCase().includes(service.toLowerCase());
+  });
 
   const sortProviders = (providers, sortBy) => {
     return [...providers].sort((a, b) => {
@@ -32,16 +23,29 @@ const ProviderList = ({ service, onProviderSelect, onViewReviews }) => {
         case 'price':
           return (a.price || 0) - (b.price || 0);
         case 'experience':
-          return (b.experience || 0) - (a.experience || 0);
+          const aExp = parseInt(a.experience) || 0;
+          const bExp = parseInt(b.experience) || 0;
+          return bExp - aExp;
         default:
           return 0;
       }
     });
   };
 
-  const sortedProviders = sortProviders(providers, sortBy);
+  const sortedProviders = sortProviders(filteredProviders, sortBy);
 
-  if (providers.length === 0) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-4 md:p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading service providers...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (sortedProviders.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-4 md:p-6">
         <div className="max-w-4xl mx-auto">
@@ -57,13 +61,6 @@ const ProviderList = ({ service, onProviderSelect, onViewReviews }) => {
                   <p className="text-gray-600">Professional services</p>
                 </div>
               </div>
-              <button 
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-300"
-              >
-                <Filter className="w-4 h-4 text-gray-600" />
-                <span className="text-gray-700 font-medium">Filters</span>
-              </button>
             </div>
           </div>
           
@@ -96,7 +93,7 @@ const ProviderList = ({ service, onProviderSelect, onViewReviews }) => {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-900 capitalize">{service}</h2>
-                <p className="text-gray-600">{providers.length} professionals available</p>
+                <p className="text-gray-600">{sortedProviders.length} professionals available</p>
               </div>
             </div>
             <button 
@@ -160,7 +157,7 @@ const ProviderList = ({ service, onProviderSelect, onViewReviews }) => {
                   {/* Provider Image */}
                   <div className="relative">
                     <img
-                      src={provider.image}
+                      src={provider.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'}
                       alt={provider.name}
                       className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover border-2 border-gray-100 group-hover:border-blue-200 transition-all duration-300"
                     />
