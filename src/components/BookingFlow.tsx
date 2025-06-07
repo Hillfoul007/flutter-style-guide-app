@@ -240,14 +240,11 @@ const BookingFlow = ({ provider }) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
       <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl border border-blue-100 p-8">
         <div className="flex items-center space-x-4 mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
-          <img
-            src={
-              provider.image ||
-              "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-            }
-            alt={provider.name}
-            className="w-16 h-16 rounded-full object-cover border-2 border-blue-200"
-          />
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center border-2 border-blue-200">
+            <span className="text-2xl font-bold text-white">
+              {provider.name.charAt(0)}
+            </span>
+          </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
               {provider.name}
