@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { handleAuthError } from "@/utils/authErrorHandler";
 
 interface Booking {
   id: string;
@@ -39,6 +40,13 @@ export const useBookings = () => {
       setBookings(data || []);
     } catch (error) {
       console.error("Error fetching bookings:", error);
+      // Check if it's an auth error
+      if (
+        error?.message?.includes("refresh") ||
+        error?.message?.includes("token")
+      ) {
+        await handleAuthError(error);
+      }
     } finally {
       setLoading(false);
     }
@@ -75,6 +83,13 @@ export const useBookings = () => {
       return { data, error: null };
     } catch (error) {
       console.error("Error creating booking:", error);
+      // Check if it's an auth error
+      if (
+        error?.message?.includes("refresh") ||
+        error?.message?.includes("token")
+      ) {
+        await handleAuthError(error);
+      }
       return { data: null, error };
     }
   };
