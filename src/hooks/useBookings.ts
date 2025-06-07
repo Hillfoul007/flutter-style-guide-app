@@ -1,7 +1,6 @@
-
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Booking {
   id: string;
@@ -10,7 +9,7 @@ interface Booking {
   date: string;
   time: string;
   location: string;
-  status: 'Confirmed' | 'Upcoming' | 'Cancelled' | 'Completed';
+  status: "Confirmed" | "Upcoming" | "Cancelled" | "Completed";
   price: number;
   user_email?: string;
   details?: string;
@@ -31,57 +30,65 @@ export const useBookings = () => {
 
     try {
       const { data, error } = await supabase
-        .from('bookings')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('booked_at', { ascending: false });
+        .from("bookings")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("booked_at", { ascending: false });
 
       if (error) throw error;
       setBookings(data || []);
     } catch (error) {
-      console.error('Error fetching bookings:', error);
+      console.error("Error fetching bookings:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const createBooking = async (bookingData: Omit<Booking, 'id' | 'booked_at'>) => {
-    if (!user) throw new Error('User not authenticated');
+  const createBooking = async (bookingData: Omit<Booking, "id">) => {
+    if (!user) throw new Error("User not authenticated");
 
     try {
+      console.log("Attempting to create booking for user:", user.id);
+      console.log("Booking data:", bookingData);
+
+      const insertData = {
+        ...bookingData,
+        user_id: user.id,
+        user_email: user.email,
+      };
+
+      console.log("Final insert data:", insertData);
+
       const { data, error } = await supabase
-        .from('bookings')
-        .insert([{
-          ...bookingData,
-          user_id: user.id,
-          user_email: user.email
-        }])
+        .from("bookings")
+        .insert([insertData])
         .select()
         .single();
 
-      if (error) throw error;
-      
-      setBookings(prev => [data, ...prev]);
+      if (error) {
+        console.error("Supabase insert error:", error);
+        throw error;
+      }
+
+      console.log("Booking inserted successfully:", data);
+      setBookings((prev) => [data, ...prev]);
       return { data, error: null };
     } catch (error) {
-      console.error('Error creating booking:', error);
+      console.error("Error creating booking:", error);
       return { data: null, error };
     }
   };
 
   const deleteBooking = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('bookings')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from("bookings").delete().eq("id", id);
 
       if (error) throw error;
-      
-      setBookings(prev => prev.filter(b => b.id !== id));
+
+      setBookings((prev) => prev.filter((b) => b.id !== id));
       return { error: null };
     } catch (error) {
-      console.error('Error deleting booking:', error);
+      console.error("Error deleting booking:", error);
       return { error };
     }
   };
@@ -91,16 +98,16 @@ export const useBookings = () => {
 
     try {
       const { error } = await supabase
-        .from('bookings')
+        .from("bookings")
         .delete()
-        .eq('user_id', user.id);
+        .eq("user_id", user.id);
 
       if (error) throw error;
-      
+
       setBookings([]);
       return { error: null };
     } catch (error) {
-      console.error('Error clearing bookings:', error);
+      console.error("Error clearing bookings:", error);
       return { error };
     }
   };
@@ -115,6 +122,6 @@ export const useBookings = () => {
     createBooking,
     deleteBooking,
     clearAllBookings,
-    refetch: fetchBookings
+    refetch: fetchBookings,
   };
 };
