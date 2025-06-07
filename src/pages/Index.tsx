@@ -57,7 +57,7 @@ const IndexContent = () => {
     setSelectedService(service);
     // Skip provider selection, go directly to booking
     setSelectedProvider({
-      id: "default-provider",
+      id: null, // Use null instead of invalid UUID
       name: "Professional Service Provider",
       specialty: service,
       price: 75,

@@ -60,7 +60,7 @@ const BookingFlow = ({ provider }) => {
         status: "Confirmed" as const,
         price: provider.price || 80,
         details: additionalDetails,
-        service_provider_id: provider.id,
+        service_provider_id: provider.id || null, // Handle null provider ID
         booked_at: new Date().toISOString(),
       };
 
