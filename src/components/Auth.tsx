@@ -11,7 +11,9 @@ import {
   formatPhoneNumber,
 } from "@/utils/userValidation";
 import { validatePassword } from "@/utils/passwordValidation";
+import { suggestEmailCorrection } from "@/utils/bounceEmailPrevention";
 import PasswordRequirements from "@/components/PasswordRequirements";
+import EmailSuggestion from "@/components/EmailSuggestion";
 import {
   User,
   LogIn,
@@ -57,6 +59,10 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro, onLoginAsPro }) => {
     useState<NodeJS.Timeout | null>(null);
   const [phoneCheckTimeout, setPhoneCheckTimeout] =
     useState<NodeJS.Timeout | null>(null);
+  const [emailSuggestions, setEmailSuggestions] = useState<{
+    suggestions: string[];
+    reason: string;
+  } | null>(null);
 
   const { signIn, signUp } = useAuth();
 
@@ -72,7 +78,23 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro, onLoginAsPro }) => {
         isValid: false,
         message: "Please enter a valid email address",
       });
+
+      // Check for typo suggestions
+      const suggestionResult = suggestEmailCorrection(email);
+      if (
+        suggestionResult.suggestions &&
+        suggestionResult.suggestions.length > 0
+      ) {
+        setEmailSuggestions({
+          suggestions: suggestionResult.suggestions,
+          reason: suggestionResult.reason || "Did you mean one of these?",
+        });
+      } else {
+        setEmailSuggestions(null);
+      }
       return;
+    } else {
+      setEmailSuggestions(null);
     }
 
     // Clear previous timeout
@@ -156,6 +178,15 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro, onLoginAsPro }) => {
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
+  };
+
+  const handleEmailSuggestionSelect = (suggestion: string) => {
+    setEmail(suggestion);
+    setEmailSuggestions(null);
+  };
+
+  const handleEmailSuggestionDismiss = () => {
+    setEmailSuggestions(null);
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -375,6 +406,14 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro, onLoginAsPro }) => {
                   <p className="mt-1 text-sm text-yellow-600">
                     Checking email availability...
                   </p>
+                )}
+                {!isLogin && emailSuggestions && (
+                  <EmailSuggestion
+                    suggestions={emailSuggestions.suggestions}
+                    reason={emailSuggestions.reason}
+                    onSelectSuggestion={handleEmailSuggestionSelect}
+                    onDismiss={handleEmailSuggestionDismiss}
+                  />
                 )}
               </div>
 

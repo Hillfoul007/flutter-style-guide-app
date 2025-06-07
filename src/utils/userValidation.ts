@@ -1,4 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
+import {
+  comprehensiveEmailValidation,
+  validateEmailFormat,
+} from "./bounceEmailPrevention";
 
 export interface ValidationResult {
   isValid: boolean;
@@ -10,6 +14,16 @@ export const checkEmailExists = async (
   email: string,
 ): Promise<ValidationResult> => {
   try {
+    // First, run comprehensive email validation (bounce prevention)
+    const emailValidation = await comprehensiveEmailValidation(email);
+    if (!emailValidation.isValid) {
+      return {
+        isValid: false,
+        message: emailValidation.reason || "Invalid email address",
+        field: "email",
+      };
+    }
+
     // Use password reset request to check if email exists (client-safe method)
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: "https://dummy-url-that-will-never-be-used.com",
@@ -146,10 +160,10 @@ export const formatPhoneNumber = (phone: string): string => {
   return phone;
 };
 
-// Email validation regex
+// Enhanced email validation using bounce prevention
 export const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  const result = validateEmailFormat(email);
+  return result.isValid;
 };
 
 // Phone validation (US format)
