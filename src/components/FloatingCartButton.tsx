@@ -102,8 +102,8 @@ const FloatingCartButton = ({ onProceedToBooking }: { onProceedToBooking: () => 
                     </span>
                   </div>
                 </div>
-              ))
               ))}
+            </div>
             </div>
 
             {/* Scroll indicator for many items */}
