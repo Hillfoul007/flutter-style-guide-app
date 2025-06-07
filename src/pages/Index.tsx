@@ -117,20 +117,6 @@ const IndexContent = () => {
                     Welcome, {user.email}
                   </div>
                   <button
-                    onClick={() => setCurrentView("history")}
-                    className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
-                  >
-                    <History className="w-4 h-4 text-white" />
-                    <span className="text-white font-medium">Bookings</span>
-                  </button>
-                  <button
-                    onClick={() => setCurrentView("providerRegistration")}
-                    className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
-                  >
-                    <UserCog className="w-4 h-4 text-white" />
-                    <span className="text-white font-medium">Join as Pro</span>
-                  </button>
-                  <button
                     onClick={handleSignOut}
                     className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
                   >
@@ -173,24 +159,6 @@ const IndexContent = () => {
                         Welcome, {user.email}
                       </span>
                     </div>
-                    <button
-                      onClick={() => setCurrentView("history")}
-                      className="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300"
-                    >
-                      <History className="w-5 h-5 text-blue-600" />
-                      <span className="text-blue-900 font-medium">
-                        My Bookings
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => setCurrentView("providerRegistration")}
-                      className="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300"
-                    >
-                      <UserCog className="w-5 h-5 text-blue-600" />
-                      <span className="text-blue-900 font-medium">
-                        Join as Pro
-                      </span>
-                    </button>
                     <button
                       onClick={handleSignOut}
                       className="w-full flex items-center space-x-3 p-3 bg-red-50 hover:bg-red-100 rounded-xl transition-all duration-300"
@@ -259,52 +227,7 @@ const IndexContent = () => {
 
         <div className="max-w-7xl mx-auto">
           {currentView === "categories" && (
-            <div className="space-y-6">
-              {/* Quick Action Buttons */}
-              <div className="p-4 md:p-6">
-                <div className="max-w-4xl mx-auto">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    <button
-                      onClick={() => setCurrentView("providerRegistration")}
-                      className="group relative overflow-hidden bg-gradient-to-br from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                    >
-                      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <div className="relative flex items-center justify-between">
-                        <div className="text-left">
-                          <h3 className="text-lg md:text-xl font-bold mb-2">
-                            Join as a Pro
-                          </h3>
-                          <p className="text-emerald-100 text-sm md:text-base">
-                            Start earning by offering your services
-                          </p>
-                        </div>
-                        <UserCog className="w-8 h-8 md:w-10 md:h-10 text-emerald-200" />
-                      </div>
-                    </button>
-
-                    <button
-                      onClick={() => setCurrentView("history")}
-                      className="group relative overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                    >
-                      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <div className="relative flex items-center justify-between">
-                        <div className="text-left">
-                          <h3 className="text-lg md:text-xl font-bold mb-2">
-                            Booking History
-                          </h3>
-                          <p className="text-blue-100 text-sm md:text-base">
-                            View your past and upcoming bookings
-                          </p>
-                        </div>
-                        <History className="w-8 h-8 md:w-10 md:h-10 text-blue-200" />
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <ServiceCategories onServiceSelect={handleServiceSelect} />
-            </div>
+            <ServiceCategories onServiceSelect={handleServiceSelect} />
           )}
 
           {currentView === "providers" && (
