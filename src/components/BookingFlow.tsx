@@ -5,6 +5,7 @@ import DateTimePicker from "./DateTimePicker";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookings } from "@/hooks/useBookings";
 import { logDetailedError, getDisplayError } from "@/utils/errorHandler";
+import { validateBookingData } from "@/utils/bookingValidation";
 import Auth from "./Auth";
 
 const BookingFlow = ({ provider }) => {
@@ -64,8 +65,21 @@ const BookingFlow = ({ provider }) => {
         booked_at: new Date().toISOString(),
       };
 
-      console.log("Creating booking with data:", bookingData);
-      const { data, error } = await createBooking(bookingData);
+      // Validate booking data before sending to database
+      const validation = validateBookingData(bookingData);
+      if (!validation.isValid) {
+        const errorMessage =
+          "Invalid booking data: " + validation.errors.join(", ");
+        console.error("Booking validation failed:", validation.errors);
+        alert(errorMessage);
+        return;
+      }
+
+      console.log(
+        "Creating booking with validated data:",
+        validation.sanitizedData,
+      );
+      const { data, error } = await createBooking(validation.sanitizedData!);
 
       if (error) {
         logDetailedError("Booking Creation", error);

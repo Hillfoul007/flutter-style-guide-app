@@ -26,6 +26,7 @@ const IndexContent = () => {
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, signOut, loading } = useAuth();
+  const { cartItems, getTotalPrice } = useCart();
 
   useEffect(() => {
     // Close mobile menu when view changes
@@ -250,8 +251,27 @@ const IndexContent = () => {
   }
 
   const handleProceedToBookingFromCart = () => {
-    // Use the first item in cart for booking or default service
-    handleServiceSelect("cart-booking");
+    if (cartItems.length > 0) {
+      // Create a combined service name from all cart items
+      const serviceNames = cartItems.map((item) => item.name).join(", ");
+      const totalPrice = getTotalPrice();
+
+      // Create a provider object for cart booking
+      setSelectedProvider({
+        id: null, // No specific provider for cart bookings
+        name: "Professional Service Provider",
+        specialty: `Multiple Services: ${serviceNames}`,
+        price: Math.round(
+          totalPrice / cartItems.reduce((sum, item) => sum + item.quantity, 0),
+        ), // Average price
+        rating: 4.8,
+        image:
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+      });
+
+      setSelectedService("cart-booking");
+      setCurrentView("booking");
+    }
   };
 
   return (
