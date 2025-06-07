@@ -10,6 +10,8 @@ import {
   isValidPhoneNumber,
   formatPhoneNumber,
 } from "@/utils/userValidation";
+import { validatePassword } from "@/utils/passwordValidation";
+import PasswordRequirements from "@/components/PasswordRequirements";
 import {
   User,
   LogIn,
@@ -46,6 +48,11 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro, onLoginAsPro }) => {
     message?: string;
     checking?: boolean;
   }>({ isValid: true });
+  const [passwordValidation, setPasswordValidation] = useState(
+    validatePassword(""),
+  );
+  const [showPasswordRequirements, setShowPasswordRequirements] =
+    useState(false);
   const [emailCheckTimeout, setEmailCheckTimeout] =
     useState<NodeJS.Timeout | null>(null);
   const [phoneCheckTimeout, setPhoneCheckTimeout] =
@@ -139,6 +146,14 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro, onLoginAsPro }) => {
     };
   }, [mobile, isLogin, phoneCheckTimeout]);
 
+  // Password validation
+  useEffect(() => {
+    if (!isLogin) {
+      const validation = validatePassword(password);
+      setPasswordValidation(validation);
+    }
+  }, [password, isLogin]);
+
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
@@ -159,6 +174,7 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro, onLoginAsPro }) => {
       mobile &&
       emailValidation.isValid &&
       phoneValidation.isValid &&
+      passwordValidation.isValid &&
       !emailValidation.checking &&
       !phoneValidation.checking
     );
@@ -374,10 +390,36 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro, onLoginAsPro }) => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => !isLogin && setShowPasswordRequirements(true)}
+                  onBlur={() => setShowPasswordRequirements(false)}
                   required
-                  className="mt-2 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-200"
-                  placeholder="Enter your password"
+                  className={`mt-2 rounded-xl ${
+                    !isLogin && password
+                      ? passwordValidation.isValid
+                        ? "border-green-300"
+                        : "border-red-300"
+                      : "border-blue-200"
+                  } focus:border-blue-500 focus:ring-blue-200`}
+                  placeholder={
+                    isLogin ? "Enter your password" : "Create a secure password"
+                  }
                 />
+                {!isLogin && (
+                  <>
+                    <PasswordRequirements
+                      validation={passwordValidation}
+                      show={
+                        showPasswordRequirements ||
+                        (password.length > 0 && !passwordValidation.isValid)
+                      }
+                    />
+                    {!showPasswordRequirements && password.length > 0 && (
+                      <div className="mt-1 text-xs text-gray-500">
+                        8+ chars, 1 letter, 1 number, 1 special character
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
 
               <Button

@@ -18,6 +18,8 @@ import {
   isValidPhoneNumber,
   formatPhoneNumber,
 } from "@/utils/userValidation";
+import { validatePassword } from "@/utils/passwordValidation";
+import PasswordRequirements from "@/components/PasswordRequirements";
 import {
   UserCog,
   LogIn,
@@ -72,6 +74,11 @@ const ProAuth: React.FC<ProAuthProps> = ({ onBack, mode: initialMode }) => {
     message?: string;
     checking?: boolean;
   }>({ isValid: true });
+  const [passwordValidation, setPasswordValidation] = useState(
+    validatePassword(""),
+  );
+  const [showPasswordRequirements, setShowPasswordRequirements] =
+    useState(false);
   const [emailCheckTimeout, setEmailCheckTimeout] =
     useState<NodeJS.Timeout | null>(null);
   const [phoneCheckTimeout, setPhoneCheckTimeout] =
@@ -176,6 +183,14 @@ const ProAuth: React.FC<ProAuthProps> = ({ onBack, mode: initialMode }) => {
     };
   }, [registerForm.phone, mode, phoneCheckTimeout]);
 
+  // Password validation for registration
+  useEffect(() => {
+    if (mode === "register") {
+      const validation = validatePassword(registerForm.password);
+      setPasswordValidation(validation);
+    }
+  }, [registerForm.password, mode]);
+
   const handleRegisterInputChange = (field: string, value: string) => {
     setRegisterForm((prev) => ({
       ...prev,
@@ -206,6 +221,7 @@ const ProAuth: React.FC<ProAuthProps> = ({ onBack, mode: initialMode }) => {
       registerForm.hourlyRate &&
       emailValidation.isValid &&
       phoneValidation.isValid &&
+      passwordValidation.isValid &&
       !emailValidation.checking &&
       !phoneValidation.checking
     );
@@ -488,10 +504,32 @@ const ProAuth: React.FC<ProAuthProps> = ({ onBack, mode: initialMode }) => {
                       onChange={(e) =>
                         handleRegisterInputChange("password", e.target.value)
                       }
+                      onFocus={() => setShowPasswordRequirements(true)}
+                      onBlur={() => setShowPasswordRequirements(false)}
                       required
-                      className="mt-2 rounded-xl border-emerald-200 focus:border-emerald-500 focus:ring-emerald-200"
-                      placeholder="Create a password"
+                      className={`mt-2 rounded-xl ${
+                        registerForm.password
+                          ? passwordValidation.isValid
+                            ? "border-green-300"
+                            : "border-red-300"
+                          : "border-emerald-200"
+                      } focus:border-emerald-500 focus:ring-emerald-200`}
+                      placeholder="Create a secure password"
                     />
+                    <PasswordRequirements
+                      validation={passwordValidation}
+                      show={
+                        showPasswordRequirements ||
+                        (registerForm.password.length > 0 &&
+                          !passwordValidation.isValid)
+                      }
+                    />
+                    {!showPasswordRequirements &&
+                      registerForm.password.length > 0 && (
+                        <div className="mt-1 text-xs text-gray-500">
+                          8+ chars, 1 letter, 1 number, 1 special character
+                        </div>
+                      )}
                   </div>
 
                   <div>
