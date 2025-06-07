@@ -6,7 +6,9 @@ import BookingHistory from "../components/BookingHistory";
 import Reviews from "../components/Reviews";
 import ProviderRegistration from "../components/ProviderRegistration";
 import Auth from "../components/Auth";
+import FloatingCartButton from "../components/FloatingCartButton";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
+import { CartProvider, useCart } from "../contexts/CartContext";
 import {
   ArrowLeft,
   History,
@@ -31,11 +33,11 @@ const IndexContent = () => {
 
   const navigateBack = () => {
     if (currentView === "booking") {
-      setCurrentView("providers");
+      setCurrentView("categories");
     } else if (currentView === "providers") {
       setCurrentView("categories");
     } else if (currentView === "reviews") {
-      setCurrentView("providers");
+      setCurrentView("categories");
     } else if (currentView === "history") {
       setCurrentView("categories");
     } else if (currentView === "providerRegistration") {
@@ -48,7 +50,17 @@ const IndexContent = () => {
   const handleServiceSelect = (service) => {
     console.log("Selected service:", service);
     setSelectedService(service);
-    setCurrentView("providers");
+    // Skip provider selection, go directly to booking
+    setSelectedProvider({
+      id: "default-provider",
+      name: "Professional Service Provider",
+      specialty: service,
+      price: 75,
+      rating: 4.8,
+      image:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    });
+    setCurrentView("booking");
   };
 
   const handleProviderSelect = (provider) => {
@@ -75,7 +87,12 @@ const IndexContent = () => {
 
   // Show auth screen if current view is auth
   if (currentView === "auth") {
-    return <Auth onBack={() => setCurrentView("categories")} />;
+    return (
+      <Auth
+        onBack={() => setCurrentView("categories")}
+        onJoinAsPro={() => setCurrentView("providerRegistration")}
+      />
+    );
   }
 
   const renderHeader = () => {
@@ -212,6 +229,11 @@ const IndexContent = () => {
     );
   }
 
+  const handleProceedToBookingFromCart = () => {
+    // Use the first item in cart for booking or default service
+    handleServiceSelect("cart-booking");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       {renderHeader()}
@@ -251,6 +273,13 @@ const IndexContent = () => {
           {currentView === "providerRegistration" && <ProviderRegistration />}
         </div>
       </div>
+
+      {/* Floating Cart Button */}
+      {currentView === "categories" && (
+        <FloatingCartButton
+          onProceedToBooking={handleProceedToBookingFromCart}
+        />
+      )}
     </div>
   );
 };
@@ -258,7 +287,9 @@ const IndexContent = () => {
 const Index = () => {
   return (
     <AuthProvider>
-      <IndexContent />
+      <CartProvider>
+        <IndexContent />
+      </CartProvider>
     </AuthProvider>
   );
 };
