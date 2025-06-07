@@ -101,7 +101,7 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro, onLoginAsPro }) => {
     return () => {
       if (timeout) clearTimeout(timeout);
     };
-  }, [email, isLogin, emailCheckTimeout]);
+  }, [email, isLogin]); // Removed emailCheckTimeout from dependencies
 
   // Phone validation with debounce
   useEffect(() => {
@@ -144,7 +144,7 @@ const Auth: React.FC<AuthProps> = ({ onBack, onJoinAsPro, onLoginAsPro }) => {
     return () => {
       if (timeout) clearTimeout(timeout);
     };
-  }, [mobile, isLogin, phoneCheckTimeout]);
+  }, [mobile, isLogin]); // Removed phoneCheckTimeout from dependencies
 
   // Password validation
   useEffect(() => {
