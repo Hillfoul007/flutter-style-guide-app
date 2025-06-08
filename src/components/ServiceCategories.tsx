@@ -112,27 +112,27 @@ const ServiceCategories = ({ onServiceSelect }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-teal-50">
       <div className="p-4 sm:p-6">
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-slate-700 to-cyan-600 bg-clip-text text-transparent mb-2">
             Book a Service
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base">
+          <p className="text-slate-600 text-sm sm:text-base">
             Choose from our professional services
           </p>
         </div>
 
         {/* Location Section */}
-        <div className="mb-6 bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-blue-100">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">
+        <div className="mb-6 bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-cyan-100">
+          <h3 className="text-lg font-semibold text-slate-800 mb-3">
             📍 Service Location
           </h3>
           <div className="space-y-3">
             <div className="flex space-x-2">
               <Button
                 onClick={handleAutoLocation}
-                className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl py-3 px-4 text-sm sm:text-base active:scale-95 transition-all duration-200"
+                className="flex-1 bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700 text-white rounded-xl py-3 px-4 text-sm sm:text-base active:scale-95 transition-all duration-200 shadow-lg"
                 disabled={isLocationAuto}
               >
                 <MapPin className="w-4 h-4 mr-2" />
@@ -144,9 +144,9 @@ const ServiceCategories = ({ onServiceSelect }) => {
                 placeholder="Enter area, city manually"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="pl-10 rounded-xl border-blue-200 focus:border-blue-500 focus:ring-blue-500 py-3 text-base"
+                className="pl-10 rounded-xl border-cyan-200 focus:border-cyan-500 focus:ring-cyan-500 py-3 text-base"
               />
-              <MapPin className="w-4 h-4 absolute left-3 top-3.5 text-gray-400" />
+              <MapPin className="w-4 h-4 absolute left-3 top-3.5 text-slate-400" />
             </div>
           </div>
         </div>
@@ -158,30 +158,30 @@ const ServiceCategories = ({ onServiceSelect }) => {
             return (
               <div
                 key={service.id}
-                className="p-4 sm:p-6 bg-white border border-blue-100 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+                className="p-4 sm:p-6 bg-white border border-cyan-100 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:border-cyan-200"
               >
                 <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 text-center">
                   {service.icon}
                 </div>
-                <h3 className="font-bold text-gray-900 mb-2 text-base sm:text-lg text-center">
+                <h3 className="font-bold text-slate-800 mb-2 text-base sm:text-lg text-center">
                   {service.name}
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 mb-3 text-center leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 mb-3 text-center leading-relaxed">
                   {service.description}
                 </p>
 
                 {/* Price and Rating */}
                 <div className="mb-4 text-center">
-                  <div className="text-xl sm:text-2xl font-bold text-blue-600 mb-1">
+                  <div className="text-xl sm:text-2xl font-bold text-cyan-600 mb-1">
                     ${service.price}
                   </div>
-                  <div className="text-xs text-gray-500 mb-2">per hour</div>
+                  <div className="text-xs text-slate-500 mb-2">per hour</div>
                   <div className="flex items-center justify-center space-x-1">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium text-gray-700">
+                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    <span className="text-sm font-medium text-slate-700">
                       {service.rating}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-slate-500">
                       ({service.reviews})
                     </span>
                   </div>
@@ -193,31 +193,31 @@ const ServiceCategories = ({ onServiceSelect }) => {
                     <Button
                       onClick={() => handleAddToCart(service)}
                       variant="outline"
-                      className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 rounded-xl py-3 px-4 text-sm sm:text-base active:scale-95 transition-all duration-200"
+                      className="w-full border-cyan-300 text-cyan-700 hover:bg-cyan-50 rounded-xl py-3 px-4 text-sm sm:text-base active:scale-95 transition-all duration-200 border-2"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Add to Cart
                     </Button>
                   ) : (
-                    <div className="flex items-center justify-center space-x-4 p-3 bg-blue-50 rounded-xl">
+                    <div className="flex items-center justify-center space-x-4 p-3 bg-gradient-to-r from-cyan-50 to-teal-50 rounded-xl border border-cyan-200">
                       <button
                         onClick={() =>
                           handleUpdateQuantity(service.id, quantity - 1)
                         }
-                        className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition-all active:scale-95"
+                        className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition-all active:scale-95 border border-cyan-200"
                       >
-                        <Minus className="w-4 h-4 text-blue-600" />
+                        <Minus className="w-4 h-4 text-cyan-600" />
                       </button>
-                      <span className="font-bold text-blue-900 min-w-[2.5rem] text-center text-lg">
+                      <span className="font-bold text-slate-800 min-w-[2.5rem] text-center text-lg">
                         {quantity}
                       </span>
                       <button
                         onClick={() =>
                           handleUpdateQuantity(service.id, quantity + 1)
                         }
-                        className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition-all active:scale-95"
+                        className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white shadow-md hover:shadow-lg flex items-center justify-center transition-all active:scale-95 border border-cyan-200"
                       >
-                        <Plus className="w-4 h-4 text-blue-600" />
+                        <Plus className="w-4 h-4 text-cyan-600" />
                       </button>
                     </div>
                   )}
@@ -226,7 +226,7 @@ const ServiceCategories = ({ onServiceSelect }) => {
                 {/* Book Now Button */}
                 <Button
                   onClick={() => handleBookNow(service)}
-                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl py-3 px-4 text-sm sm:text-base font-semibold active:scale-95 transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white rounded-xl py-3 px-4 text-sm sm:text-base font-semibold active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
                   Book Now
                 </Button>
