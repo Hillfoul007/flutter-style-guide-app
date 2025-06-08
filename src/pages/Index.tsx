@@ -125,11 +125,11 @@ const IndexContent = () => {
 
     if (currentView === "categories") {
       return (
-        <div className="relative bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 shadow-2xl">
-          <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/5 to-teal-500/10"></div>
           <div className="relative flex items-center justify-between p-4 md:p-6">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <span className="text-xl md:text-2xl font-bold text-white">
                   T
                 </span>
@@ -138,7 +138,7 @@ const IndexContent = () => {
                 <h1 className="text-xl md:text-2xl font-bold text-white">
                   TaskApp
                 </h1>
-                <p className="text-blue-100 text-xs md:text-sm">
+                <p className="text-cyan-200 text-xs md:text-sm">
                   Professional Services
                 </p>
               </div>
@@ -153,23 +153,23 @@ const IndexContent = () => {
                   </div>
                   <button
                     onClick={() => setCurrentView("history")}
-                    className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
+                    className="flex items-center space-x-2 px-4 py-2 bg-cyan-500/20 hover:bg-cyan-400/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105 border border-cyan-400/20"
                   >
-                    <History className="w-4 h-4 text-white" />
+                    <History className="w-4 h-4 text-cyan-200" />
                     <span className="text-white font-medium">Bookings</span>
                   </button>
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
+                    className="flex items-center space-x-2 px-4 py-2 bg-rose-500/20 hover:bg-rose-400/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105 border border-rose-400/20"
                   >
-                    <LogOut className="w-4 h-4 text-white" />
+                    <LogOut className="w-4 h-4 text-rose-200" />
                     <span className="text-white font-medium">Sign Out</span>
                   </button>
                 </>
               ) : (
                 <button
                   onClick={() => setCurrentView("auth")}
-                  className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105"
+                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-400 hover:to-teal-500 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
                 >
                   <User className="w-4 h-4 text-white" />
                   <span className="text-white font-medium">Sign In</span>
@@ -192,33 +192,33 @@ const IndexContent = () => {
 
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
-            <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-sm shadow-2xl border-t border-white/20 z-50">
+            <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md shadow-2xl border-t border-cyan-200/20 z-50">
               <div className="p-6 space-y-4">
                 {user ? (
                   <>
-                    <div className="p-4 bg-blue-50 rounded-xl">
-                      <span className="text-blue-900 font-medium text-base">
+                    <div className="p-4 bg-gradient-to-r from-slate-50 to-cyan-50 rounded-xl border border-cyan-100">
+                      <span className="text-slate-800 font-medium text-base">
                         Welcome!
                       </span>
-                      <div className="text-blue-700 text-sm mt-1 truncate">
+                      <div className="text-slate-600 text-sm mt-1 truncate">
                         {user.email}
                       </div>
                     </div>
                     <button
                       onClick={() => setCurrentView("history")}
-                      className="w-full flex items-center space-x-4 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300 active:scale-95"
+                      className="w-full flex items-center space-x-4 p-4 bg-gradient-to-r from-cyan-50 to-teal-50 hover:from-cyan-100 hover:to-teal-100 rounded-xl transition-all duration-300 active:scale-95 border border-cyan-200"
                     >
-                      <History className="w-6 h-6 text-blue-600" />
-                      <span className="text-blue-900 font-medium text-lg">
+                      <History className="w-6 h-6 text-cyan-600" />
+                      <span className="text-slate-800 font-medium text-lg">
                         My Bookings
                       </span>
                     </button>
                     <button
                       onClick={handleSignOut}
-                      className="w-full flex items-center space-x-4 p-4 bg-red-50 hover:bg-red-100 rounded-xl transition-all duration-300 active:scale-95"
+                      className="w-full flex items-center space-x-4 p-4 bg-gradient-to-r from-rose-50 to-red-50 hover:from-rose-100 hover:to-red-100 rounded-xl transition-all duration-300 active:scale-95 border border-rose-200"
                     >
-                      <LogOut className="w-6 h-6 text-red-600" />
-                      <span className="text-red-900 font-medium text-lg">
+                      <LogOut className="w-6 h-6 text-rose-600" />
+                      <span className="text-slate-800 font-medium text-lg">
                         Sign Out
                       </span>
                     </button>
@@ -227,19 +227,19 @@ const IndexContent = () => {
                   <>
                     <button
                       onClick={() => setCurrentView("auth")}
-                      className="w-full flex items-center space-x-4 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300 active:scale-95"
+                      className="w-full flex items-center space-x-4 p-4 bg-gradient-to-r from-cyan-50 to-teal-50 hover:from-cyan-100 hover:to-teal-100 rounded-xl transition-all duration-300 active:scale-95 border border-cyan-200"
                     >
-                      <User className="w-6 h-6 text-blue-600" />
-                      <span className="text-blue-900 font-medium text-lg">
+                      <User className="w-6 h-6 text-cyan-600" />
+                      <span className="text-slate-800 font-medium text-lg">
                         Sign In
                       </span>
                     </button>
                     <button
                       onClick={() => setCurrentView("proAuth")}
-                      className="w-full flex items-center space-x-4 p-4 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-all duration-300 active:scale-95"
+                      className="w-full flex items-center space-x-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 hover:from-emerald-100 hover:to-green-100 rounded-xl transition-all duration-300 active:scale-95 border border-emerald-200"
                     >
                       <UserCog className="w-6 h-6 text-emerald-600" />
-                      <span className="text-emerald-900 font-medium text-lg">
+                      <span className="text-slate-800 font-medium text-lg">
                         Join as a Pro
                       </span>
                     </button>
@@ -253,13 +253,14 @@ const IndexContent = () => {
     }
 
     return (
-      <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 shadow-xl">
-        <div className="flex items-center justify-between p-4 md:p-6">
+      <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 shadow-xl">
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/5 to-teal-500/10"></div>
+        <div className="relative flex items-center justify-between p-4 md:p-6">
           <button
             onClick={navigateBack}
-            className="w-10 h-10 md:w-12 md:h-12 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-105"
+            className="w-10 h-10 md:w-12 md:h-12 bg-cyan-500/20 hover:bg-cyan-400/30 backdrop-blur-sm rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-105 border border-cyan-400/20"
           >
-            <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-cyan-200" />
           </button>
           <h1 className="text-lg md:text-xl font-bold text-white">
             {titles[currentView]}
@@ -272,10 +273,10 @@ const IndexContent = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-teal-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 font-medium">Loading...</p>
         </div>
       </div>
     );
@@ -303,7 +304,7 @@ const IndexContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-teal-50">
       {renderHeader()}
 
       <div className="relative">
