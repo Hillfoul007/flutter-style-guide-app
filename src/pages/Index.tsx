@@ -150,14 +150,9 @@ const IndexContent = () => {
             <div className="hidden md:flex items-center space-x-3">
               {user ? (
                 <>
-                  <button
-                    onClick={() => setCurrentView("history")}
-                    className="flex items-center space-x-2 px-4 py-2 bg-cyan-500/20 hover:bg-cyan-400/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105 border border-cyan-400/20"
-                  >
-                    <History className="w-4 h-4 text-cyan-200" />
-                    <span className="text-white font-medium">Bookings</span>
-                  </button>
-                  <UserProfile />
+                  <UserProfile
+                    onNavigateToBookings={() => setCurrentView("history")}
+                  />
                 </>
               ) : (
                 <button

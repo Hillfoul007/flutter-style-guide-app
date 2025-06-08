@@ -14,9 +14,13 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface UserProfileProps {
   className?: string;
+  onNavigateToBookings?: () => void;
 }
 
-const UserProfile: React.FC<UserProfileProps> = ({ className = "" }) => {
+const UserProfile: React.FC<UserProfileProps> = ({
+  className = "",
+  onNavigateToBookings,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -170,6 +174,20 @@ const UserProfile: React.FC<UserProfileProps> = ({ className = "" }) => {
 
           {/* Actions */}
           <div className="p-4 pt-0 space-y-2">
+            {onNavigateToBookings && (
+              <Button
+                onClick={() => {
+                  setIsOpen(false);
+                  onNavigateToBookings();
+                }}
+                variant="outline"
+                className="w-full justify-start border-cyan-200 text-cyan-700 hover:bg-cyan-50 rounded-xl"
+              >
+                <Clock className="w-4 h-4 mr-2" />
+                My Bookings
+              </Button>
+            )}
+
             <Button
               variant="outline"
               className="w-full justify-start border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl"
