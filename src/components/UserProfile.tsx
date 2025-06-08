@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import {
   User,
   LogOut,
-  Settings,
   Clock,
   Shield,
   Mail,
@@ -187,14 +186,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 My Bookings
               </Button>
             )}
-
-            <Button
-              variant="outline"
-              className="w-full justify-start border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Account Settings
-            </Button>
 
             <Button
               onClick={handleSignOut}
