@@ -8,6 +8,7 @@ import ProviderRegistration from "../components/ProviderRegistration";
 import Auth from "../components/Auth";
 import ProAuth from "../components/ProAuth";
 import FloatingCartButton from "../components/FloatingCartButton";
+import ChatBot from "../components/ChatBot";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { CartProvider, useCart } from "../contexts/CartContext";
 import {
@@ -349,6 +350,9 @@ const IndexContent = () => {
           onProceedToBooking={handleProceedToBookingFromCart}
         />
       )}
+
+      {/* AI ChatBot */}
+      {currentView === "categories" && <ChatBot />}
     </div>
   );
 };
