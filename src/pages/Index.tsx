@@ -9,6 +9,7 @@ import Auth from "../components/Auth";
 import ProAuth from "../components/ProAuth";
 import FloatingCartButton from "../components/FloatingCartButton";
 import ChatBot from "../components/ChatBot";
+import UserProfile from "../components/UserProfile";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { CartProvider, useCart } from "../contexts/CartContext";
 import {
@@ -149,9 +150,6 @@ const IndexContent = () => {
             <div className="hidden md:flex items-center space-x-3">
               {user ? (
                 <>
-                  <div className="text-white text-sm">
-                    Welcome, {user.email}
-                  </div>
                   <button
                     onClick={() => setCurrentView("history")}
                     className="flex items-center space-x-2 px-4 py-2 bg-cyan-500/20 hover:bg-cyan-400/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105 border border-cyan-400/20"
@@ -159,13 +157,7 @@ const IndexContent = () => {
                     <History className="w-4 h-4 text-cyan-200" />
                     <span className="text-white font-medium">Bookings</span>
                   </button>
-                  <button
-                    onClick={handleSignOut}
-                    className="flex items-center space-x-2 px-4 py-2 bg-rose-500/20 hover:bg-rose-400/30 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-105 border border-rose-400/20"
-                  >
-                    <LogOut className="w-4 h-4 text-rose-200" />
-                    <span className="text-white font-medium">Sign Out</span>
-                  </button>
+                  <UserProfile />
                 </>
               ) : (
                 <button
@@ -198,11 +190,30 @@ const IndexContent = () => {
                 {user ? (
                   <>
                     <div className="p-4 bg-gradient-to-r from-slate-50 to-cyan-50 rounded-xl border border-cyan-100">
-                      <span className="text-slate-800 font-medium text-base">
-                        Welcome!
-                      </span>
-                      <div className="text-slate-600 text-sm mt-1 truncate">
-                        {user.email}
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
+                          <span className="text-white text-sm font-bold">
+                            {(
+                              user.user_metadata?.name ||
+                              user.email?.split("@")[0] ||
+                              "U"
+                            )
+                              .charAt(0)
+                              .toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-800 font-medium text-base">
+                            Welcome,{" "}
+                            {user.user_metadata?.name ||
+                              user.email?.split("@")[0] ||
+                              "User"}
+                            !
+                          </span>
+                          <div className="text-slate-600 text-sm mt-1 truncate">
+                            {user.email}
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <button
